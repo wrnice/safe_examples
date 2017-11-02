@@ -3,14 +3,14 @@ import { observer } from 'mobx-react';
 import PropTypes from 'prop-types';
 
 @observer
-class Comment extends Component {
+class Reply extends Component {
   getDeleteLink() {
-    const { comment, deleteComment } = this.props;
+    const { reply, deleteReply } = this.props;
     return (
       <div className="_opt">
         <button
-          className="deleteComment"
-          onClick={() => { deleteComment(comment); }}
+          className="deleteReply"
+          onClick={() => { deleteReply(reply); }}
         >Delete
         </button>
       </div>
@@ -18,15 +18,15 @@ class Comment extends Component {
   }
 
   render() {
-    const { comment, isOwner } = this.props;
+    const { reply, isOwner } = this.props;
     const deleteLink = isOwner ? this.getDeleteLink() : null;
     return (
-      <li className="_comment-ls-i">
+      <li className="reply-ls-i">
         <div className="_title">
-          <span className="_user">{comment.name}</span>
-          <span className="_date">{new Date(comment.date).toLocaleString()}</span>
+          <span className="_user">{reply.name}</span>
+          <span className="_date">{new Date(reply.date).toLocaleString()}</span>
         </div>
-        <div className="_message">{comment.message}</div>
+        <div className="_message">{reply.message}</div>
         <div className="_opts">
           {deleteLink}
         </div>
@@ -35,14 +35,14 @@ class Comment extends Component {
   }
 }
 
-Comment.propTypes = {
-  comment: PropTypes.shape({
+Reply.propTypes = {
+  reply: PropTypes.shape({
     name: PropTypes.string.isRequired,
     date: PropTypes.string.isRequired,
     message: PropTypes.string.isRequired,
   }).isRequired,
   isOwner: PropTypes.bool.isRequired,
-  deleteComment: PropTypes.func.isRequired,
+  deleteReply: PropTypes.func.isRequired,
 };
 
-export default Comment;
+export default Reply;

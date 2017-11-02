@@ -16,9 +16,9 @@
   "author": "Nice",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/maidsafe/safe_examples/issues"
+    "url": "https://github.com/wrnice/safe_simple_forum/issues"
   },
-  "homepage": "https://github.com/maidsafe/safe_examples/non-editable-comments-web",
+  "homepage": "https://github.com/wrnice/safe_simple_forum",
   "devDependencies": {
     "babel-core": "^6.9.1",
     "babel-eslint": "^7.2.3",

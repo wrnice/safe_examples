@@ -4,7 +4,7 @@ const generateId = () => {
   return array.join('-');
 };
 
-export default class CommentModel {
+export default class ReplyModel {
   constructor(name, message, date, id = generateId()) {
     this.name = name;
     this.date = date;

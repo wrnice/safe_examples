@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { observable, action } from 'mobx';
 import { observer } from 'mobx-react';
 
-import Comment from './Comment';
+import Reply from './Reply';
 import constant from '../constants.js';
 
 @observer
-class CommentList extends React.Component {
+class ReplyList extends React.Component {
   @observable newMessage = '';
   @observable isLoading
 
@@ -48,13 +48,13 @@ class CommentList extends React.Component {
 
   getAuthorisingContainer() {
     return (
-      <div className="_comments_init">Initialising comments for this post. Please wait...</div>
+      <div className="_replies_init">Initialising replies for this post. Please wait...</div>
     );
   }
 
   getNotEnabledContainer() {
     return (
-      <div className="_comments_init">Sorry comments not enabled for this post.</div>
+      <div className="_replies_init">Sorry replies not enabled for this post.</div>
     );
   }
 
@@ -68,36 +68,36 @@ class CommentList extends React.Component {
     if (!store.isEnabled) {
       return this.getNotEnabledContainer();
     }
-    const isLoading = store.isLoading ? (<div className="_comments-loading"><div className="loader-1">{''}</div></div>) : null;
+    const isLoading = store.isLoading ? (<div className="_replies-loading"><div className="loader-1">{''}</div></div>) : null;
 
     return (
-      <div className="_comments">
-        <div className="_comment-box">
+      <div className="_replies">
+        <div className="_reply-box">
           <form onSubmit={this.handleFormSubmit}>
-            <div className="_comment-users">
-              <label htmlFor="commentUser">Comment as</label>
-              <select name="commentUser" ref={(c) => { this.name = c; }}>
+            <div className="_reply-users">
+              <label htmlFor="replyUser">Reply as</label>
+              <select name="replyUser" ref={(c) => { this.name = c; }}>
                 {userList.map((userList, i) => <option key={i} value={userList}>{userList}</option>)}
                 <option value={constant.ANONYMOUS} >{constant.ANONYMOUS}</option>
               </select>
             </div>
             <textarea
-              className="_comment-msg"
-              placeholder="Enter your comment. Not more than 250 characters."
+              className="_reply-msg"
+              placeholder="Enter your reply. Not more than 250 characters."
               name="message"
               maxLength="250"
               value={this.newMessage}
               required="required"
               onChange={this.handleInputChange}
             />
-            <button className="_comment-post-btn" type="submit" disabled={this.newMessage.length === 0}>Comment</button>
+            <button className="_reply-post-btn" type="submit" disabled={this.newMessage.length === 0}>Reply</button>
           </form>
         </div>
-        <div className="_comment-list">
-          <div className="_comments-count">{store.comments.length} Comment(s)</div>
-          <ul className="_comment-ls">
-            {store.comments.map(comment => (
-              <Comment comment={comment} isOwner={store.isOwner} deleteComment={store.deleteComment} key={comment.id} />
+        <div className="_reply-list">
+          <div className="_replies-count">{store.replies.length} Reply(s)</div>
+          <ul className="_reply-ls">
+            {store.replies.map(reply => (
+              <Reply reply={reply} isOwner={store.isOwner} deleteReply={store.deleteReply} key={reply.id} />
             ))}
           </ul>
         </div>
@@ -118,12 +118,12 @@ class CommentList extends React.Component {
 
     const store = this.props.store;
     if (this.name.value === '' || this.newMessage === '') {
-      window.alert('Please select your ID and enter comment');
+      window.alert('Please select your ID and enter reply');
       return;
     }
-    store.addComment(this.name.value, this.newMessage);
+    store.addReply(this.name.value, this.newMessage);
     this.newMessage = '';
   };
 }
 
-export default CommentList;
+export default ReplyList;

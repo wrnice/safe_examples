@@ -1,4 +1,4 @@
-import CommentModel from './models/CommentModel';
+import ReplyModel from './models/ReplyModel';
 import Constants from './constants';
 
 const {
@@ -21,9 +21,9 @@ if (hostName.split(DOT).length === 1) {
 // Authorisation model
 const APP = {
   info: {
-    id: `${hostName}-comment-plugin`,
-    name: `${hostName}-comment-plugin`,
-    vendor: 'MaidSafe.net Ltd',
+    id: `${hostName}-simple-forum`,
+    name: `${hostName}-simple-forum`,
+    vendor: 'Nice',
   },
   opts: {},
   containers: {
@@ -32,8 +32,8 @@ const APP = {
 };
 
 /**
- * SafeApi handles the SAFE Network related requests for managing the comments for a topic.
- * Exposes function for the store/UI to save/retrieve comment list against a topic.
+ * SafeApi handles the SAFE Network related requests for managing the replies for a topic.
+ * Exposes function for the store/UI to save/retrieve replies list against a topic.
  * Also exposes other utility functions for getting Public ID list and also to validate the user is admin
  */
 export default class SafeApi {
@@ -45,7 +45,7 @@ export default class SafeApi {
    */
   constructor(topic, nwStateCb) {
     this.topic = topic;
-    this.comments = [];
+    this.replies = [];
     this.app = undefined;
     this.mData = undefined;
     this.MD_NAME = `${hostName}-${this.topic}`;
@@ -117,8 +117,8 @@ export default class SafeApi {
         await window.safeMutableData.quickSetup(
           this.mData,
           {},
-          `${this.MD_NAME} - Comment Plugin`,
-          `Comments for the hosting ${this.MD_NAME} is saved in this MutableData`,
+          `${this.MD_NAME} - Simple Forum`,
+          `Replies for the hosting ${this.MD_NAME} is saved in this MutableData`,
         );
         // create a new permission set
         const permSet = await window.safeMutableData.newPermissionSet(this.app);
@@ -186,14 +186,14 @@ export default class SafeApi {
 
   /**
   * Invoked to authorise the user.
-  * Sets up the comments MutableData if it is not already initialised.
+  * Sets up the replies MutableData if it is not already initialised.
   */
   authorise() {
     return new Promise(async (resolve, reject) => {
       try {
         const isInitialised = await this.isMDInitialised();
         if (!isInitialised) {
-          // Create the MutableData if the current user is the owner 
+          // Create the MutableData if the current user is the owner
           await this.setup();
         } else {
           await this.createMutableDataHandle();
@@ -222,21 +222,21 @@ export default class SafeApi {
   }
 
   /**
-  * Post comment for the topic
-  * @param {CommentModel} commentModel
+  * Post reply for the topic
+  * @param {ReplyModel} replyModel
   */
-  postComment(commentModel) {
+  postReply(replyModel) {
     return new Promise(async (resolve, reject) => {
       try {
         const entriesHandle = await window.safeMutableData.getEntries(this.mData);
         const mutationHandle = await window.safeMutableDataEntries.mutate(entriesHandle);
-        await window.safeMutableDataMutation.insert(mutationHandle, commentModel.id, JSON.stringify(commentModel));
+        await window.safeMutableDataMutation.insert(mutationHandle, replyModel.id, JSON.stringify(replyModel));
         // Without calling applyEntriesMutation the changes wont we saved in the network
         await window.safeMutableData.applyEntriesMutation(this.mData, mutationHandle);
         window.safeMutableDataMutation.free(mutationHandle);
         window.safeMutableDataEntries.free(entriesHandle);
-        this.comments = await this.listComments();
-        resolve(this.comments);
+        this.replies = await this.listReplies();
+        resolve(this.replies);
       } catch (err) {
         reject(err);
       }
@@ -244,48 +244,48 @@ export default class SafeApi {
   }
 
   /**
-  * List all comments for the topic
+  * List all replies for the topic
   */
-  listComments() {
+  listReplies() {
     return new Promise(async (resolve) => {
       try {
         const entriesHandle = await window.safeMutableData.getEntries(this.mData);
         const len = await window.safeMutableDataEntries.len(entriesHandle);
-        this.comments = [];
+        this.replies = [];
         if (len === 0) {
-          return resolve(this.comments);
+          return resolve(this.replies);
         }
         await window.safeMutableDataEntries.forEach(entriesHandle, (key, value) => {
           if (value.buf.length === 0) {
             return;
           }
           const jsonObj = JSON.parse(value.buf.toString());
-          this.comments.push(new CommentModel(jsonObj.name, jsonObj.message, jsonObj.date, jsonObj.id));
+          this.replies.push(new ReplyModel(jsonObj.name, jsonObj.message, jsonObj.date, jsonObj.id));
         });
-        resolve(this.comments);
+        resolve(this.replies);
       } catch (err) {
-        console.warn('list comments: ', err);
-        resolve(this.comments);
+        console.warn('list replies: ', err);
+        resolve(this.replies);
       }
     });
   }
 
   /**
-  * Delete comment for the topic
-  * @param {any} commentModel
+  * Delete reply for the topic
+  * @param {any} replyModel
   */
-  deleteComment(commentModel) {
+  deleteReply(replyModel) {
     return new Promise(async (resolve, reject) => {
       try {
         const entriesHandle = await window.safeMutableData.getEntries(this.mData);
         const mutationHandle = await window.safeMutableDataEntries.mutate(entriesHandle);
-        const data = await window.safeMutableData.get(this.mData, commentModel.id);
-        await window.safeMutableDataMutation.remove(mutationHandle, commentModel.id, data.version + 1);
+        const data = await window.safeMutableData.get(this.mData, replyModel.id);
+        await window.safeMutableDataMutation.remove(mutationHandle, replyModel.id, data.version + 1);
         await window.safeMutableData.applyEntriesMutation(this.mData, mutationHandle);
         window.safeMutableDataMutation.free(mutationHandle);
         window.safeMutableDataEntries.free(entriesHandle);
-        this.comments = await this.listComments();
-        resolve(this.comments);
+        this.replies = await this.listReplies();
+        resolve(this.replies);
       } catch (err) {
         reject(err);
       }

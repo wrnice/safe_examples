@@ -2,10 +2,10 @@ import { observable, action } from 'mobx';
 import SafeApi from '../safe_api';
 import CONSTANTS from '../constants';
 
-import CommentModel from './CommentModel';
+import ReplyModel from './ReplyModel';
 
-export default class CommentListModel {
-  @observable comments = [];
+export default class ReplyListModel {
+  @observable replies = [];
 
   @observable isLoading = false;
 
@@ -21,15 +21,15 @@ export default class CommentListModel {
 
   @observable isNwConnecting = false;
 
-  sortComments(comments) {
-    comments.sort((a, b) => {
+  sortReplies(replies) {
+    replies.sort((a, b) => {
       const date1 = new Date(a.date);
       const date2 = new Date(b.date);
       if (date1 > date2) return -1;
       if (date1 < date2) return 1;
       return 0;
     });
-    return comments;
+    return replies;
   }
 
   @action
@@ -48,8 +48,8 @@ export default class CommentListModel {
       this.isAuthorising = true;
       this.api = new SafeApi(topic, this.nwStateCb);
       await this.api.authorise(topic);
-      const comments = await this.api.listComments();
-      this.comments = this.sortComments(comments);
+      const replies = await this.api.listReplies();
+      this.replies = this.sortReplies(replies);
       const publicIDList = await this.api.getPublicNames();
       this.publicNames = publicIDList;
       this.isOwner = await this.api.isOwner();
@@ -66,28 +66,28 @@ export default class CommentListModel {
   }
 
   @action
-  addComment = async (name, message) => {
+  addReply = async (name, message) => {
     try {
       this.isLoading = true;
       const date = new Date().toUTCString();
-      const comments = await this.api.postComment(new CommentModel(name, message, date));
-      this.comments = this.sortComments(comments);
+      const replies = await this.api.postReply(new ReplyModel(name, message, date));
+      this.replies = this.sortReplies(replies);
       this.isLoading = false;
     } catch (err) {
-      console.error('addComment: ', err);
+      console.error('addReply: ', err);
       this.isLoading = false;
     }
   }
 
   @action
-  deleteComment = async (comment) => {
+  deleteReply = async (reply) => {
     try {
       this.isLoading = true;
-      const comments = await this.api.deleteComment(comment);
-      this.comments = this.sortComments(comments);
+      const replies = await this.api.deleteReply(reply);
+      this.replies = this.sortReplies(reply);
       this.isLoading = false;
     } catch (err) {
-      console.error('deleteComment: ', err);
+      console.error('deleteReply: ', err);
       this.isLoading = false;
     }
   }
