@@ -18,6 +18,8 @@ if (hostName.split(DOT).length === 1) {
   hostName = `www.${hostName}`;
 }
 
+// console.log ( "hostname :" , hostName );
+
 // Authorisation model
 const APP = {
   info: {
@@ -215,6 +217,7 @@ export default class SafeApi {
         const publicNames = await this.getPublicNames();
         const currPublicID = hostName.split(DOT).slice(1).join(DOT);
         resolve(publicNames.indexOf(currPublicID) > -1);
+        // resolve(true);
       } catch (err) {
         resolve(false);
       }

@@ -79,10 +79,12 @@
       <p class="p"> Now, the Mutable Data is created with the deterministic Id and tag type. Also set the permission to <code>USER_ANYONE</code> by setting the handle to <code>null</code>. This permission is set to allow all the users to insert data into the Mutable Data</p>
 
     </div>
-    <div id="forum"></div>
-    <script src="/static/bundle.js"></script>
-    <script type="application/javascript">
-      window.safeReplies('RepliesTitle');
+    <div id="replies"></div>
+    <script src="safe_simple_forum-v0.1.0.js"></script>
+    <script>
+		document.addEventListener("DOMContentLoaded", function(event) {
+			window.safeReplies('Page-Topic-My-Blog', 'replies');
+		});
     </script>
   </body>
 </html>
