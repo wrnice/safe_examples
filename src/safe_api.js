@@ -119,16 +119,25 @@ export default class SafeApi {
         // are we already initialased ?
         // are we already authorized ?
         // are we already connected ?
+        var theapp = sessionStorage.getItem("app");
+        var theauth = sessionStorage.getItem("auth");
 
-        if ( !window.auth || !window.app ) {
+        if ( !theapp  ) {
+          this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
+          sessionStorage.setItem("app", this.app );
+          console.log ( "setup : storing " , sessionStorage.getItem("app") , ' - > sessionStorage app ', );
+        } else {
+          this.app = sessionStorage.getItem("app");
+          console.log ( "setup : fetching " , 'sessionStorage app - > ',this.app );
+        }
 
-        this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
+        if ( !theauth  ) {
         const uri = await window.safeApp.authorise(this.app, APP.containers, APP.opts);
-        window.auth = await window.safeApp.connectAuthorised(this.app, uri);
-        window.app = this.app;
-      } else {
-        this.app = window.app;
-      }
+        var auth = await window.safeApp.connectAuthorised(this.app, uri);
+
+        sessionStorage.setItem("auth", auth );
+        }
+
         const isOwner = await this.isOwner();
         if (!isOwner) {
           throw new Error(ERROR_MSG.PUBLIC_ID_DOES_NOT_MATCH);
@@ -161,13 +170,33 @@ export default class SafeApi {
     return new Promise(async (resolve, reject) => {
       try {
 
-        console.log ( "ceateTopicsMutableDataHandle" );
+        console.log ( "createTopicsMutableDataHandle" );
 
         // Initialising the app using the App info which requests for _publicNames container
-        this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
-        // Authorise the app and connect to the network using uri
+        // are we already initialased ?
+        // are we already authorized ?
+        // are we already connected ?
+        var theapp = sessionStorage.getItem("app");
+        var theauth = sessionStorage.getItem("auth");
+
+        if ( !theapp  ) {
+          this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
+          sessionStorage.setItem("app", this.app );
+          console.log ( "setup : storing " , sessionStorage.getItem("app") , ' - > sessionStorage app ', );
+        } else {
+          this.app = sessionStorage.getItem("app");
+          console.log ( "setup : fetching " , 'sessionStorage app - > ',this.app );
+        }
+
+        if ( !theauth  ) {
         const uri = await window.safeApp.authorise(this.app, APP.containers, APP.opts);
-        await window.safeApp.connectAuthorised(this.app, uri);
+        var auth = await window.safeApp.connectAuthorised(this.app, uri);
+
+        sessionStorage.setItem("auth", auth );
+        }
+        // Authorise the app and connect to the network using uri
+        // const uri = await window.safeApp.authorise(this.app, APP.containers, APP.opts);
+        // await window.safeApp.connectAuthorised(this.app, uri);
         // Compute the MutableData name
         const hashedName = await window.safeCrypto.sha3Hash(this.app, this.TOPICS_MD_NAME);
         // Create the handle for the MutableData
@@ -189,9 +218,10 @@ export default class SafeApi {
 
         console.log ( "isMDInitialised");
 
-        const appHandle = await window.safeApp.initialise(APP.info, this.nwStateCb);
         // Connect as unregistered client
+        const appHandle = await window.safeApp.initialise(APP.info, this.nwStateCb);
         await window.safeApp.connect(appHandle);
+
         const hashedName = await window.safeCrypto.sha3Hash(appHandle, this.TOPICS_MD_NAME);
         const mdHandle = await window.safeMutableData.newPublic(appHandle, hashedName, TYPE_TAG);
         // newPublic function only creates a handle in the local memmory.
@@ -337,15 +367,21 @@ export default class SafeApi {
         // are we already initialased ?
         // are we already authorized ?
         // are we already connected ?
+        var theapp = sessionStorage.getItem("app");
+        var theauth = sessionStorage.getItem("auth");
 
-        if ( !window.auth || !window.app ) {
+        if ( !theapp || !theauth ) {
 
         this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
         const uri = await window.safeApp.authorise(this.app, APP.containers, APP.opts);
-        window.auth = await window.safeApp.connectAuthorised(this.app, uri);
-        window.app = this.app;
+        var auth = await window.safeApp.connectAuthorised(this.app, uri);
+        sessionStorage.setItem("app", this.app );
+        sessionStorage.setItem("auth", auth );
+        console.log ( sessionStorage.getItem("app") , ' - > sessionStorage app ', );
+        //window.app = this.app;
       } else {
-        this.app = window.app;
+        this.app = sessionStorage.getItem("app");
+        console.log ( 'sessionStorage app - > ',this.app );
       }
 
         const hashedName = await window.safeCrypto.sha3Hash(this.app, topicname );
