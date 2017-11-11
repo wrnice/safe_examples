@@ -72,6 +72,15 @@ class ReplyList extends React.Component {
 
     const isLoading = store.isLoading ? (<div className="_replies-loading"><div className="loader-1">{''}</div></div>) : null;
 
+    if ( store.replies.length == 0) {
+      return (
+        <div>
+          <div>No such Topic ! You may want to create it on : <a href = {constant.HOSTNAME} >the main forum page</a>
+          </div>
+        </div>
+        );
+    }
+    else {
     return (
       <div className="_replies">
         <div className="_reply-box">
@@ -108,6 +117,7 @@ class ReplyList extends React.Component {
       </div>
     );
   }
+}
 
   @action
   handleInputChange = (e) => {
@@ -123,7 +133,7 @@ class ReplyList extends React.Component {
       window.alert('Please select your ID and enter reply');
       return;
     }
-    var thetopic = getParameterByName ( "t", window.location.search );
+    var thetopic = window.getParameterByName ( "t", window.location.search );
     store.addReply(thetopic,this.name.value, this.newMessage);
     this.newMessage = '';
   };

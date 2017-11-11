@@ -63,6 +63,9 @@ export default class SafeApi {
   * Fetches the public Ids associated to the user.
   */
   getPublicNames() {
+
+    console.log ( "getpublicnames");
+
     return new Promise(async (resolve, reject) => {
       const decryptedPublicNames = [];
       try {
@@ -113,10 +116,19 @@ export default class SafeApi {
 
         console.log ( "setup" );
 
+        // are we already initialased ?
+        // are we already authorized ?
+        // are we already connected ?
+
+        if ( !window.auth || !window.app ) {
+
         this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
-        window.app = this.app ;
         const uri = await window.safeApp.authorise(this.app, APP.containers, APP.opts);
-        await window.safeApp.connectAuthorised(this.app, uri);
+        window.auth = await window.safeApp.connectAuthorised(this.app, uri);
+        window.app = this.app;
+      } else {
+        this.app = window.app;
+      }
         const isOwner = await this.isOwner();
         if (!isOwner) {
           throw new Error(ERROR_MSG.PUBLIC_ID_DOES_NOT_MATCH);
@@ -148,6 +160,9 @@ export default class SafeApi {
   createTopicsMutableDataHandle() {
     return new Promise(async (resolve, reject) => {
       try {
+
+        console.log ( "ceateTopicsMutableDataHandle" );
+
         // Initialising the app using the App info which requests for _publicNames container
         this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
         // Authorise the app and connect to the network using uri
@@ -171,6 +186,9 @@ export default class SafeApi {
   isMDInitialised() {
     return new Promise(async (resolve, reject) => {
       try {
+
+        console.log ( "isMDInitialised");
+
         const appHandle = await window.safeApp.initialise(APP.info, this.nwStateCb);
         // Connect as unregistered client
         await window.safeApp.connect(appHandle);
@@ -200,6 +218,9 @@ export default class SafeApi {
   authorise() {
     return new Promise(async (resolve, reject) => {
       try {
+
+        console.log ( "authorise" );
+
         const isInitialised = await this.isMDInitialised();
         if (!isInitialised) {
           // Create the MutableData if the current user is the owner
@@ -221,6 +242,9 @@ export default class SafeApi {
   isOwner() {
     return new Promise(async (resolve) => {
       try {
+
+        console.log ( "isOwner" );
+
         const publicNames = await this.getPublicNames();
         const currPublicID = hostName.split(DOT).slice(1).join(DOT);
         resolve(publicNames.indexOf(currPublicID) > -1);
@@ -309,10 +333,21 @@ export default class SafeApi {
         if (topicname == "" ) {
           return;
         }
-        
+
+        // are we already initialased ?
+        // are we already authorized ?
+        // are we already connected ?
+
+        if ( !window.auth || !window.app ) {
+
         this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
         const uri = await window.safeApp.authorise(this.app, APP.containers, APP.opts);
-        await window.safeApp.connectAuthorised(this.app, uri);
+        window.auth = await window.safeApp.connectAuthorised(this.app, uri);
+        window.app = this.app;
+      } else {
+        this.app = window.app;
+      }
+
         const hashedName = await window.safeCrypto.sha3Hash(this.app, topicname );
         this.repliesMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
 
@@ -331,8 +366,13 @@ export default class SafeApi {
         });
         resolve(this.replies);
       } catch (err) {
+
+        if ( err.message.includes("Requested data not found") ) { console.log('no such topic');this.replies = [];return resolve(this.replies) }
+        else {
+
         console.warn('list replies: ', err);
         resolve(this.replies);
+        }
       }
     });
   }
