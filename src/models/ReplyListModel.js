@@ -43,13 +43,15 @@ export default class ReplyListModel {
   }
 
   @action
-  authorise = async (topic) => {
+  authorise = async (reply) => {
     try {
+
+
       this.isAuthorising = true;
-      this.api = new SafeApi(topic, this.nwStateCb);
-      await this.api.authorise(topic);
-      const replies = await this.api.listReplies();
-      this.replies = this.sortReplies(replies);
+      this.api = new SafeApi(reply, this.nwStateCb);
+      //await this.api.authorise();  //*******************************************
+      const replies = await this.api.listReplies(reply); //*******************************************
+      this.replies = this.sortReplies(replies); //*******************************************
       const publicIDList = await this.api.getPublicNames();
       this.publicNames = publicIDList;
       this.isOwner = await this.api.isOwner();
@@ -66,11 +68,13 @@ export default class ReplyListModel {
   }
 
   @action
-  addReply = async (name, message) => {
+  addReply = async (topic, name, message) => {
     try {
+
+      
       this.isLoading = true;
       const date = new Date().toUTCString();
-      const replies = await this.api.postReply(new ReplyModel(name, message, date));
+      const replies = await this.api.postReply(topic ,new ReplyModel(name, message, date));
       this.replies = this.sortReplies(replies);
       this.isLoading = false;
     } catch (err) {

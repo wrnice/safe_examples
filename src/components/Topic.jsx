@@ -9,7 +9,7 @@ class Topic extends Component {
     return (
       <div className="_opt">
         <button
-          className="deleteTopic"
+          className="deleteReply"
           onClick={() => { deleteTopic(topic); }}
         >Delete
         </button>
@@ -21,16 +21,20 @@ class Topic extends Component {
     const { topic, isOwner } = this.props;
     const deleteLink = isOwner ? this.getDeleteLink() : null;
     return (
-      <li className="topic-ls-i">
+      <li className="reply-ls-i">
         <div className="_title">
-          <span className="_user">{topic.title}</span>
-          <span className="_user">{topic.author}</span>
-          <span className="_date">{new Date(topic.date_created).toLocaleString()}</span>
-          <span className="_date">{new Date(topic.last_modified).toLocaleString()}</span>
+            <span className="_user">{topic.author}</span>
+            <span className="_date">{new Date(topic.date).toLocaleString()}</span>
         </div>
+
+        <a href = {"localhost://p:3008?t="+topic.title}  >
+          <div className="_message">{topic.title}</div>
+        </a>
+
         <div className="_opts">
           {deleteLink}
         </div>
+
       </li>
     );
   }
@@ -38,9 +42,9 @@ class Topic extends Component {
 
 Topic.propTypes = {
   topic: PropTypes.shape({
-    name: PropTypes.string.isRequired,
+    author: PropTypes.string.isRequired,
     date: PropTypes.string.isRequired,
-    message: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
   }).isRequired,
   isOwner: PropTypes.bool.isRequired,
   deleteTopic: PropTypes.func.isRequired,

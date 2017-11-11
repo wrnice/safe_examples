@@ -5,12 +5,11 @@ const generateId = () => {
 };
 
 export default class TopicModel {
-  constructor(title, author, op, date_created, last_modified, id = generateId()) {
-    this.title = title;
+  //constructor(title, author, op, date_created, last_modified, id = generateId()) {
+  constructor(author, title, date, id = generateId()) {
     this.author = author;
-    this.op = op;
-    this.date_created = date_created;
-    this.last_modified = last_modified;
+    this.date = date;
+    this.title = title;
     this.id = id;
   }
 }

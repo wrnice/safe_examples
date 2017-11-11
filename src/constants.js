@@ -1,6 +1,6 @@
 export default {
   ANONYMOUS: 'Anonymous',
-  DEFAULT_ID: 'replies',
+  DEFAULT_ID: 'topics',
   PUBLIC_NAMES_CONTAINER: '_publicNames',
   NET_STATE: {
     INIT: 'Init',

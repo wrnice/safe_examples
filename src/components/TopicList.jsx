@@ -8,6 +8,7 @@ import constant from '../constants.js';
 @observer
 class TopicList extends React.Component {
   @observable newText = '';
+  @observable newTitle = '';
   @observable isLoading
 
   componentDidMount() {
@@ -69,35 +70,44 @@ class TopicList extends React.Component {
       return this.getNotEnabledContainer();
     }
     const isLoading = store.isLoading ? (<div className="_topics-loading"><div className="loader-1">{''}</div></div>) : null;
-
+    
     return (
-      <div className="_topics">
-        <div className="_topic-box">
+      <div className="_replies">
+        <div className="_reply-box">
           <form onSubmit={this.handleFormSubmit}>
             <div className="_reply-users">
               <label htmlFor="replyUser">Publish as</label>
-              <select name="replyUser" ref={(c) => { this.name = c; }}>
+              <select name="replyUser" ref={(c) => { this.author = c; }}>
                 {userList.map((userList, i) => <option key={i} value={userList}>{userList}</option>)}
                 <option value={constant.ANONYMOUS} >{constant.ANONYMOUS}</option>
               </select>
             </div>
             <textarea
-              className="_topic-msg"
-              placeholder="Enter your text. Not more than 250 characters."
+              className="_reply-title"
+              placeholder="Topic title"
+              name="topic_title"
+              maxLength="50"
+              value={this.newTitle}
+              required="required"
+              onChange={this.handleTitleInputChange}
+            />
+            <textarea
+              className="_reply-msg"
+              placeholder="Type your message here"
               name="topic_text"
-              maxLength="250"
+              maxLength="50"
               value={this.newText}
               required="required"
-              onChange={this.handleInputChange}
+              onChange={this.handleTextInputChange}
             />
-          <button className="_new-topic-btn" type="submit" disabled={this.newtopic.length === 0}>Publish</button>
+          <button className="_new-reply-btn" type="submit" disabled={this.newTitle.length === 0}>Publish</button>
           </form>
         </div>
-        <div className="_topic-list">
-          <div className="_topics-count">{store.topics.length} Topic(s)</div>
-          <ul className="_topic-ls">
+        <div className="_reply-list">
+          <div className="_replies-count">{store.topics.length} Topic(s)</div>
+          <ul className="_reply-ls">
             {store.topics.map(topic => (
-              <Topic topic={topic} isOwner={store.isOwner} deleteTopic={store.deleteTopic} key={reply.id} />
+              <Topic topic={topic} isOwner={store.isOwner} deleteTopic={store.deleteTopic} key={topic.id} />
             ))}
           </ul>
         </div>
@@ -108,7 +118,12 @@ class TopicList extends React.Component {
   }
 
   @action
-  handleInputChange = (e) => {
+  handleTitleInputChange = (e) => {
+    this.newTitle = e.target.value;
+  };
+
+  @action
+  handleTextInputChange = (e) => {
     this.newText = e.target.value;
   };
 
@@ -117,12 +132,18 @@ class TopicList extends React.Component {
     e.preventDefault();
 
     const store = this.props.store;
-    if (this.name.value === '' || this.newText === '') {
-      window.alert('Please select your ID and enter your text');
+    if (this.author.value === '' || this.newTitle === '' || this.newText === '') {
+      window.alert('Please select your ID, and enter your topic title and text');
       return;
     }
-    store.addTopic(this.name.value, this.newText);
+    store.addTopic(this.author.value, this.newTitle, this.newText );
+    this.newTitle = '';
     this.newText = '';
+    // show the topic and replies
+    // hide the topic list
+    // hide the new topic form
+    // show the main menu button
+    // change the browser bar url
   };
 }
 

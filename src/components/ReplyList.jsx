@@ -11,6 +11,7 @@ class ReplyList extends React.Component {
   @observable isLoading
 
   componentDidMount() {
+    //this.props.store.authorise(this.props.topic);
     this.props.store.authorise(this.props.topic);
     this.setState(
       {
@@ -48,13 +49,13 @@ class ReplyList extends React.Component {
 
   getAuthorisingContainer() {
     return (
-      <div className="_replies_init">Initialising replies for this post. Please wait...</div>
+      <div className="_replies_init">Initialising replies for this topic. Please wait...</div>
     );
   }
 
   getNotEnabledContainer() {
     return (
-      <div className="_replies_init">Sorry replies not enabled for this post.</div>
+      <div className="_replies_init">Sorry replies not enabled for this topic.</div>
     );
   }
 
@@ -68,6 +69,7 @@ class ReplyList extends React.Component {
     if (!store.isEnabled) {
       return this.getNotEnabledContainer();
     }
+
     const isLoading = store.isLoading ? (<div className="_replies-loading"><div className="loader-1">{''}</div></div>) : null;
 
     return (
@@ -121,7 +123,8 @@ class ReplyList extends React.Component {
       window.alert('Please select your ID and enter reply');
       return;
     }
-    store.addReply(this.name.value, this.newMessage);
+    var thetopic = getParameterByName ( "t", window.location.search );
+    store.addReply(thetopic,this.name.value, this.newMessage);
     this.newMessage = '';
   };
 }

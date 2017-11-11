@@ -3,6 +3,7 @@ import SafeApi from '../safe_api';
 import CONSTANTS from '../constants';
 
 import TopicModel from './TopicModel';
+import ReplyModel from './ReplyModel';
 
 export default class TopicListModel {
   @observable topics = [];
@@ -23,8 +24,10 @@ export default class TopicListModel {
 
   sortTopics(topics) {
     topics.sort((a, b) => {
-      const date1 = new Date(a.last_modified);
-      const date2 = new Date(b.last_modified);
+      // const date1 = new Date(a.last_modified);
+      // const date2 = new Date(b.last_modified);
+      const date1 = new Date(a.date);
+      const date2 = new Date(b.date);
       if (date1 > date2) return -1;
       if (date1 < date2) return 1;
       return 0;
@@ -43,11 +46,11 @@ export default class TopicListModel {
   }
 
   @action
-  authorise = async (forum) => {
+  authorise = async (topic) => {
     try {
       this.isAuthorising = true;
-      this.api = new SafeApi(forum, this.nwStateCb);
-      await this.api.authorise(forum);
+      this.api = new SafeApi(topic, this.nwStateCb);
+      await this.api.authorise();
       const topics = await this.api.listTopics();
       this.topics = this.sortTopics(topics);
       const publicIDList = await this.api.getPublicNames();
@@ -61,16 +64,23 @@ export default class TopicListModel {
         this.isEnabled = false;
         return;
       }
-      alert(`Failed to initialise: ${err}`);
+      alert(`Failed to initialise ! : ${err}`);
     }
   }
 
   @action
-  addTopic = async (author, text) => {
+  addTopic = async (author, title, text ) => {
     try {
       this.isLoading = true;
       const date = new Date().toUTCString();
-      const topics = await this.api.postTopic(new TopicModel(author, text, date, date));
+      // const topics = await this.api.postTopic(new TopicModel(title, author, op, date_created, last_modified ));
+      const topics = await this.api.publishTopic(new TopicModel(author, title, date ));
+
+      // create a new mutable for the replies to this topic
+      const newreply = await this.api.setupReplies(title);
+      // , and put the original post as a fisrt reply
+      const replies = await this.api.postReply(title,new ReplyModel(author, text, date ));
+
       this.topics = this.sortTopics(topics);
       this.isLoading = false;
     } catch (err) {

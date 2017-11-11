@@ -1,4 +1,5 @@
 import ReplyModel from './models/ReplyModel';
+import TopicModel from './models/TopicModel';
 import Constants from './constants';
 
 const {
@@ -34,8 +35,8 @@ const APP = {
 };
 
 /**
- * SafeApi handles the SAFE Network related requests for managing the replies for a topic.
- * Exposes function for the store/UI to save/retrieve replies list against a topic.
+ * SafeApi handles the SAFE Network related requests for managing the replies for a topic and create new topics in a forum.
+ * Exposes function for the store/UI to save/retrieve replies list against a topic, and save/retrieve a topic list for a forum.
  * Also exposes other utility functions for getting Public ID list and also to validate the user is admin
  */
 export default class SafeApi {
@@ -48,9 +49,11 @@ export default class SafeApi {
   constructor(topic, nwStateCb) {
     this.topic = topic;
     this.replies = [];
+    this.topics = [];
     this.app = undefined;
-    this.mData = undefined;
-    this.MD_NAME = `${hostName}-${this.topic}`;
+    this.topicsMutableData = undefined;
+    this.repliesMutableData = undefined;
+    this.TOPICS_MD_NAME = `${hostName}-${this.topic}`;
     this.nwStateCb = (newState) => {
       nwStateCb(newState);
     };
@@ -107,27 +110,31 @@ export default class SafeApi {
   setup() {
     return new Promise(async (resolve, reject) => {
       try {
+
+        console.log ( "setup" );
+
         this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
+        window.app = this.app ;
         const uri = await window.safeApp.authorise(this.app, APP.containers, APP.opts);
         await window.safeApp.connectAuthorised(this.app, uri);
         const isOwner = await this.isOwner();
         if (!isOwner) {
           throw new Error(ERROR_MSG.PUBLIC_ID_DOES_NOT_MATCH);
         }
-        const hashedName = await window.safeCrypto.sha3Hash(this.app, this.MD_NAME);
-        this.mData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
+        const hashedName = await window.safeCrypto.sha3Hash(this.app, this.TOPICS_MD_NAME);
+        this.topicsMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
         await window.safeMutableData.quickSetup(
-          this.mData,
+          this.topicsMutableData,
           {},
-          `${this.MD_NAME} - Simple Forum`,
-          `Replies for the hosting ${this.MD_NAME} is saved in this MutableData`,
+          `${this.TOPICS_MD_NAME} - Simple Forum`,
+          `topics for the hosting ${this.TOPICS_MD_NAME} is saved in this MutableData`,
         );
         // create a new permission set
         const permSet = await window.safeMutableData.newPermissionSet(this.app);
         // allowing the user to perform the Insert operation
         await window.safeMutableDataPermissionsSet.setAllow(permSet, PERMISSIONS.INSERT);
         // setting the handle as null, anyone can perform the Insert operation
-        await window.safeMutableData.setUserPermissions(this.mData, null, permSet, 1);
+        await window.safeMutableData.setUserPermissions(this.topicsMutableData, null, permSet, 1);
         resolve();
       } catch (err) {
         reject(err);
@@ -136,9 +143,9 @@ export default class SafeApi {
   }
 
   /**
-  * Create the MutableData for the MD_NAME
+  * Create the MutableData for the TOPICS_MD_NAME
   */
-  createMutableDataHandle() {
+  createTopicsMutableDataHandle() {
     return new Promise(async (resolve, reject) => {
       try {
         // Initialising the app using the App info which requests for _publicNames container
@@ -147,9 +154,9 @@ export default class SafeApi {
         const uri = await window.safeApp.authorise(this.app, APP.containers, APP.opts);
         await window.safeApp.connectAuthorised(this.app, uri);
         // Compute the MutableData name
-        const hashedName = await window.safeCrypto.sha3Hash(this.app, this.MD_NAME);
+        const hashedName = await window.safeCrypto.sha3Hash(this.app, this.TOPICS_MD_NAME);
         // Create the handle for the MutableData
-        this.mData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
+        this.topicsMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
         resolve();
       } catch (err) {
         reject(err);
@@ -158,8 +165,8 @@ export default class SafeApi {
   }
 
   /**
-  * Invoked to check whether the MuatbleData is set up.
-  * Creates a unregistered client to try fetching the MutableData and get its entries.
+  * Invoked to check whether the Topics MutableData is set up.
+  * Creates a unregistered client to try fetching the topics MutableData and get its entries.
   */
   isMDInitialised() {
     return new Promise(async (resolve, reject) => {
@@ -167,7 +174,7 @@ export default class SafeApi {
         const appHandle = await window.safeApp.initialise(APP.info, this.nwStateCb);
         // Connect as unregistered client
         await window.safeApp.connect(appHandle);
-        const hashedName = await window.safeCrypto.sha3Hash(appHandle, this.MD_NAME);
+        const hashedName = await window.safeCrypto.sha3Hash(appHandle, this.TOPICS_MD_NAME);
         const mdHandle = await window.safeMutableData.newPublic(appHandle, hashedName, TYPE_TAG);
         // newPublic function only creates a handle in the local memmory.
         // The network operation is performed only when we call getEntries fo validating that the MutableData exists
@@ -188,7 +195,7 @@ export default class SafeApi {
 
   /**
   * Invoked to authorise the user.
-  * Sets up the replies MutableData if it is not already initialised.
+  * Sets up the topics MutableData if it is not already initialised.
   */
   authorise() {
     return new Promise(async (resolve, reject) => {
@@ -198,7 +205,7 @@ export default class SafeApi {
           // Create the MutableData if the current user is the owner
           await this.setup();
         } else {
-          await this.createMutableDataHandle();
+          await this.createTopicsMutableDataHandle();
         }
         resolve();
       } catch (err) {
@@ -217,9 +224,48 @@ export default class SafeApi {
         const publicNames = await this.getPublicNames();
         const currPublicID = hostName.split(DOT).slice(1).join(DOT);
         resolve(publicNames.indexOf(currPublicID) > -1);
-        // resolve(true);
+        //resolve(true);
       } catch (err) {
         resolve(false);
+      }
+    });
+  }
+
+  /**
+  * Set up a MutableData for the replies to a Topic with Insert permission for Everyone.
+  * Create a Public Mutable Data with a deterministic name. (Hash(location.hostname + topic))
+  * Apply the permission set for the MutableData
+  */
+  setupReplies(topicname) {
+    return new Promise(async (resolve, reject) => {
+      try {
+
+        console.log ( "setup replies" );
+
+        //this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
+        //const uri = await window.safeApp.authorise(this.app, APP.containers, APP.opts);
+        //await window.safeApp.connectAuthorised(this.app, uri);
+        //const isOwner = await this.isOwner();
+        //if (!isOwner) {
+        //  throw new Error(ERROR_MSG.PUBLIC_ID_DOES_NOT_MATCH);
+        //}
+        const hashedName = await window.safeCrypto.sha3Hash(this.app, topicname );
+        this.repliesMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
+        await window.safeMutableData.quickSetup(
+          this.repliesMutableData,
+          {},
+          `${topicname} - Simple Forum`,
+          `replies for the topic ${topicname} is saved in this MutableData`,
+        );
+        // create a new permission set
+        const permSet = await window.safeMutableData.newPermissionSet(this.app);
+        // allowing the user to perform the Insert operation
+        await window.safeMutableDataPermissionsSet.setAllow(permSet, PERMISSIONS.INSERT);
+        // setting the handle as null, anyone can perform the Insert operation
+        await window.safeMutableData.setUserPermissions(this.repliesMutableData, null, permSet, 1);
+        resolve();
+      } catch (err) {
+        reject(err);
       }
     });
   }
@@ -228,17 +274,23 @@ export default class SafeApi {
   * Post reply for the topic
   * @param {ReplyModel} replyModel
   */
-  postReply(replyModel) {
+  postReply(topicname,replyModel) {
     return new Promise(async (resolve, reject) => {
       try {
-        const entriesHandle = await window.safeMutableData.getEntries(this.mData);
+        console.log ( 'postreplies');
+
+        const hashedName = await window.safeCrypto.sha3Hash(this.app, topicname );
+        var repliesMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
+
+        const entriesHandle = await window.safeMutableData.getEntries(repliesMutableData);
         const mutationHandle = await window.safeMutableDataEntries.mutate(entriesHandle);
         await window.safeMutableDataMutation.insert(mutationHandle, replyModel.id, JSON.stringify(replyModel));
         // Without calling applyEntriesMutation the changes wont we saved in the network
-        await window.safeMutableData.applyEntriesMutation(this.mData, mutationHandle);
+        await window.safeMutableData.applyEntriesMutation(repliesMutableData, mutationHandle);
         window.safeMutableDataMutation.free(mutationHandle);
         window.safeMutableDataEntries.free(entriesHandle);
-        this.replies = await this.listReplies();
+        window.safeMutableDataEntries.free(repliesMutableData);
+        this.replies = await this.listReplies(topicname);
         resolve(this.replies);
       } catch (err) {
         reject(err);
@@ -249,10 +301,22 @@ export default class SafeApi {
   /**
   * List all replies for the topic
   */
-  listReplies() {
+  listReplies(topicname) {
     return new Promise(async (resolve) => {
       try {
-        const entriesHandle = await window.safeMutableData.getEntries(this.mData);
+
+        console.log ('listreplies : topicname = ' , topicname );
+        if (topicname == "" ) {
+          return;
+        }
+        
+        this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
+        const uri = await window.safeApp.authorise(this.app, APP.containers, APP.opts);
+        await window.safeApp.connectAuthorised(this.app, uri);
+        const hashedName = await window.safeCrypto.sha3Hash(this.app, topicname );
+        this.repliesMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
+
+        const entriesHandle = await window.safeMutableData.getEntries(this.repliesMutableData);
         const len = await window.safeMutableDataEntries.len(entriesHandle);
         this.replies = [];
         if (len === 0) {
@@ -280,15 +344,86 @@ export default class SafeApi {
   deleteReply(replyModel) {
     return new Promise(async (resolve, reject) => {
       try {
-        const entriesHandle = await window.safeMutableData.getEntries(this.mData);
+        const entriesHandle = await window.safeMutableData.getEntries(this.repliesMutableData);
         const mutationHandle = await window.safeMutableDataEntries.mutate(entriesHandle);
-        const data = await window.safeMutableData.get(this.mData, replyModel.id);
+        const data = await window.safeMutableData.get(this.repliesMutableData, replyModel.id);
         await window.safeMutableDataMutation.remove(mutationHandle, replyModel.id, data.version + 1);
-        await window.safeMutableData.applyEntriesMutation(this.mData, mutationHandle);
+        await window.safeMutableData.applyEntriesMutation(this.repliesMutableData, mutationHandle);
         window.safeMutableDataMutation.free(mutationHandle);
         window.safeMutableDataEntries.free(entriesHandle);
-        this.replies = await this.listReplies();
+        this.replies = await this.listReplies(topicname);
         resolve(this.replies);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  /**
+  * Publish new topic
+  * @param {TopicModel} topicModel
+  */
+  publishTopic(topicModel) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const entriesHandle = await window.safeMutableData.getEntries(this.topicsMutableData);
+        const mutationHandle = await window.safeMutableDataEntries.mutate(entriesHandle);
+        await window.safeMutableDataMutation.insert(mutationHandle, topicModel.id, JSON.stringify(topicModel));
+        // Without calling applyEntriesMutation the changes wont we saved in the network
+        await window.safeMutableData.applyEntriesMutation(this.topicsMutableData, mutationHandle);
+        window.safeMutableDataMutation.free(mutationHandle);
+        window.safeMutableDataEntries.free(entriesHandle);
+        this.topics = await this.listTopics();
+        resolve(this.topics);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  /**
+  * List all topics of the forum
+  */
+  listTopics() {
+    return new Promise(async (resolve) => {
+      try {
+        const entriesHandle = await window.safeMutableData.getEntries(this.topicsMutableData);
+        const len = await window.safeMutableDataEntries.len(entriesHandle);
+        this.topics = [];
+        if (len === 0) {
+          return resolve(this.topics);
+        }
+        await window.safeMutableDataEntries.forEach(entriesHandle, (key, value) => {
+          if (value.buf.length === 0) {
+            return;
+          }
+          const jsonObj = JSON.parse(value.buf.toString());
+          this.topics.push(new TopicModel(jsonObj.author, jsonObj.title, jsonObj.date, jsonObj.id));
+        });
+        resolve(this.topics);
+      } catch (err) {
+        console.warn('list topics: ', err);
+        resolve(this.topics);
+      }
+    });
+  }
+
+  /**
+  * Delete topic from the forum
+  * @param {any} topicModel
+  */
+  deleteTopic(topicModel) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const entriesHandle = await window.safeMutableData.getEntries(this.topicsMutableData);
+        const mutationHandle = await window.safeMutableDataEntries.mutate(entriesHandle);
+        const data = await window.safeMutableData.get(this.topicsMutableData, topicModel.id);
+        await window.safeMutableDataMutation.remove(mutationHandle, topicModel.id, data.version + 1);
+        await window.safeMutableData.applyEntriesMutation(this.topicsMutableData, mutationHandle);
+        window.safeMutableDataMutation.free(mutationHandle);
+        window.safeMutableDataEntries.free(entriesHandle);
+        this.topics = await this.listTopics();
+        resolve(this.topics);
       } catch (err) {
         reject(err);
       }

@@ -74,7 +74,20 @@
     transition: height .5s ease;
 }
 
-._replies ._reply-box form ._reply-msg:focus {
+ ._reply-title {
+    width: 100%;
+    font-size: 14px;
+    margin: 24px 0;
+    padding: 8px;
+    border: 2px solid #EEE;
+    resize: none;
+    height: 50px;
+    border-radius: 3px;
+    outline: none;
+    transition: height .5s ease;
+}
+
+._replies ._reply-box form ._reply-msg:focus , ._replies ._reply-box form ._reply-title:focus {
     border-color: #cccccc;
 }
 
