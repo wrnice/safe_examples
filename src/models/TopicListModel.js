@@ -8,6 +8,8 @@ import ReplyModel from './ReplyModel';
 export default class TopicListModel {
   @observable topics = [];
 
+  @observable likes = [];
+
   @observable isLoading = false;
 
   @observable publicNames = [];
@@ -69,17 +71,17 @@ export default class TopicListModel {
   }
 
   @action
-  addTopic = async (author, title, text ) => {
+  addTopic = async (author, title, op ) => {
     try {
       this.isLoading = true;
       const date = new Date().toUTCString();
-      // const topics = await this.api.postTopic(new TopicModel(title, author, op, date_created, last_modified ));
-      const topics = await this.api.publishTopic(new TopicModel(author, title, date ));
+
+      const topics = await this.api.publishTopic(new TopicModel(author, title, date, op));
 
       // create a new mutable for the replies to this topic
       const newreply = await this.api.setupReplies(title);
       // , and put the original post as a fisrt reply
-      const replies = await this.api.postReply(title,new ReplyModel(author, text, date ));
+      const replies = await this.api.postReply(title,new ReplyModel(author, op, date ));
 
       this.topics = this.sortTopics(topics);
       this.isLoading = false;

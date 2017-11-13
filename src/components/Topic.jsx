@@ -57,6 +57,7 @@ Topic.propTypes = {
     author: PropTypes.string.isRequired,
     date: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
+    likes: PropTypes.array.isRequired,
   }).isRequired,
   isOwner: PropTypes.bool.isRequired,
   deleteTopic: PropTypes.func.isRequired,

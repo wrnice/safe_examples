@@ -131,10 +131,10 @@ class TopicList extends React.Component {
               onChange={this.handleTextInputChange}
             />
           <div className="formbuttons">
-          <div className="cancel" onClick={this.cancelButtonPressed} >cancel</div>
-          <div className="sendbutton" type="submit" disabled={this.newTitle.length === 0}>Publish</div>
+          <button className="cancel" onClick={this.cancelButtonPressed} >cancel</button>
+          <button className="sendbutton" type="submit" disabled={this.newTitle.length === 0}>Publish</button>
           </div>
-          
+
           </form>
         </div>
 
@@ -168,11 +168,6 @@ class TopicList extends React.Component {
     this.newText = '';
     this.topicFormVisible = "hidden";
     this.newTopicButtonVisible = "visible";
-    // show the topic and replies
-    // hide the topic list
-    // hide the new topic form
-    // show the main menu button
-    // change the browser bar url
   };
 
 @action

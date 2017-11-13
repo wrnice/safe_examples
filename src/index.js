@@ -28,13 +28,27 @@ function getParameterByName(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
+function uintToString(uintArray) {
+	return new TextDecoder('utf-8')
+		.decode(uintArray)
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#039;');
+}
+
+const topicUrl = ( topic, id ) => {
+  return topicstring = topic.replace(/\W+/g, "-").toLowerCase()+'?i='+id;
+}
+
 const renderTopics = (id) => {
   var thetopic = getParameterByName("t", window.location.search);
   console.log ( "index.js : thetopic : ", thetopic );
   if ( !thetopic || thetopic == '' ) {
       render(
         <div>
-          <TopicList store={topicstore} topic={'SafeSimpleForum2'} />
+          <TopicList store={topicstore} topic={'SafeSimpleForum4'} />
         </div>,
         document.getElementById(id),
       );
@@ -62,6 +76,12 @@ const renderReplies = (topic,id) => {
   );
 };
 
+
+
+
+
 window.safeTopics = renderTopics; //globally accessible
 window.safeReplies = renderReplies;
 window.getParameterByName = getParameterByName;
+window.topicUrl = topicUrl;
+window.uintToString = uintToString;

@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import { observer } from 'mobx-react';
 import PropTypes from 'prop-types';
 
+import SafeApi from '../safe_api';
+import CONSTANTS from '../constants';
+
 @observer
 class Reply extends Component {
   getDeleteLink() {
@@ -20,6 +23,20 @@ class Reply extends Component {
   render() {
     const { reply, isOwner } = this.props;
     const deleteLink = isOwner ? this.getDeleteLink() : null;
+
+    var thetopic = window.getParameterByName ( "t", window.location.search );
+
+    this.api = new SafeApi();
+
+    var getlikes = this.api.getlikes(thetopic,reply.id).then( function(result)  {
+      var likes = result +"";
+      console.log ( 'reply : ', likes );
+      document.getElementById(reply.id).innerHTML=likes;
+    });
+
+    var howmanylikes = getlikes;
+    console.log ( 'reply : ', howmanylikes );
+
     return (
 
       <div className="reply">
@@ -29,7 +46,9 @@ class Reply extends Component {
       </div>
 
       <div className="message">{reply.message}</div>
-
+        <div className="replybuttons">
+        <div className="likes"><span id={reply.id}></span> likes {'\u2665'}</div>
+        </div>
         <div className="_opts">
           {deleteLink}
         </div>

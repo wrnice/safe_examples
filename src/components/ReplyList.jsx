@@ -87,6 +87,8 @@ class ReplyList extends React.Component {
 
       var thetopic = window.getParameterByName ( "t", window.location.search );
 
+      var theid = window.getParameterByName ( "i", window.location.search );
+
     return (
       <div className="main">
 
@@ -102,12 +104,15 @@ class ReplyList extends React.Component {
           <div className="title">{thetopic}</div>
           {/* <div className="replies-count">{store.replies.length} Reply(s)</div> */}
           <ul className="replylist">
-            {store.replies.map(reply => (
+            {store.replies.map(reply => ( // TODO 'likes' are not a reply ! should not be part of replies
               <Reply reply={reply} isOwner={store.isOwner} deleteReply={store.deleteReply} key={reply.id} />
+
             ))}
           </ul>
         </div>
+
         <div id="replybutton" className={"newreply"} onClick={this.replyButtonPressed} style={{visibility: this.replyButtonVisible }}>reply</div>
+
 
         <div id="newReplyForm" className="footerform" style={{visibility: this.replyFormVisible }}>
           <form onSubmit={this.handleFormSubmit}>
@@ -156,6 +161,7 @@ class ReplyList extends React.Component {
       return;
     }
     var thetopic = window.getParameterByName ( "t", window.location.search );
+    var theid = window.getParameterByName ( "i", window.location.search );
     store.addReply(thetopic,this.name.value, this.newMessage);
     this.newMessage = '';
     this.replyFormVisible = "hidden";

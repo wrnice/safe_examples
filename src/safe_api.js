@@ -51,6 +51,7 @@ export default class SafeApi {
     this.replies = [];
     this.topics = [];
     this.app = undefined;
+    this.likes = [];
     this.topicsMutableData = undefined;
     this.repliesMutableData = undefined;
     this.TOPICS_MD_NAME = `${hostName}-${this.topic}`;
@@ -298,7 +299,7 @@ export default class SafeApi {
     return new Promise(async (resolve, reject) => {
       try {
 
-        console.log ( "setup replies" );
+        console.log ( "setup replies : topicname = " , topicname);
 
         //this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
         //const uri = await window.safeApp.authorise(this.app, APP.containers, APP.opts);
@@ -311,7 +312,7 @@ export default class SafeApi {
         this.repliesMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
         await window.safeMutableData.quickSetup(
           this.repliesMutableData,
-          {},
+          {likes: "[0,0]" },
           `${topicname} - Simple Forum`,
           `replies for the topic ${topicname} is saved in this MutableData`,
         );
@@ -397,8 +398,8 @@ export default class SafeApi {
         if (len === 0) {
           return resolve(this.replies);
         }
-        await window.safeMutableDataEntries.forEach(entriesHandle, (key, value) => {
-          if (value.buf.length === 0) {
+        await window.safeMutableDataEntries.forEach(entriesHandle, (key, value) => { // do not treat the 'like' entry as a reply
+          if (value.buf.length === 0 || key == "likes") {
             return;
           }
           const jsonObj = JSON.parse(value.buf.toString());
@@ -446,6 +447,7 @@ export default class SafeApi {
   publishTopic(topicModel) {
     return new Promise(async (resolve, reject) => {
       try {
+
         const entriesHandle = await window.safeMutableData.getEntries(this.topicsMutableData);
         const mutationHandle = await window.safeMutableDataEntries.mutate(entriesHandle);
         await window.safeMutableDataMutation.insert(mutationHandle, topicModel.id, JSON.stringify(topicModel));
@@ -509,6 +511,65 @@ export default class SafeApi {
       }
     });
   }
+
+
+  //
+  /**
+  * Get likes number for a reply
+  */
+  getlikes (topicname,id) {
+    return new Promise(async (resolve) => {
+        try {
+
+        console.log ( "getlikes : topic name : ", topicname );
+
+        // are we already initialased ?
+        // are we already authorized ?
+        // are we already connected ?
+        var theapp = sessionStorage.getItem("app");
+
+        if ( !theapp ) {
+
+        this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
+        await window.safeApp.connect(this.app);
+        sessionStorage.setItem("app", this.app );
+
+        console.log ( sessionStorage.getItem("app") , ' - > sessionStorage app ', );
+
+      } else {
+        this.app = sessionStorage.getItem("app");
+        console.log ( 'sessionStorage app - > ',this.app );
+      }
+
+          const hashedName = await window.safeCrypto.sha3Hash(this.app, topicname );
+          var topicMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG );
+
+
+          const entriesHandle = await window.safeMutableData.getEntries( topicMutableData);
+
+
+          const len = await window.safeMutableDataEntries.len(entriesHandle);
+          this.likes = [];
+          if (len === 0) {
+            return resolve(this.likes);
+          }
+          var thelikes = await window.safeMutableDataEntries.get(entriesHandle, 'likes' );
+          var likes = uintToString(thelikes.buf);
+          console.log('get likes: ', likes );
+          // now find how many pairs
+          this.likes = ( likes.match(/\[/g) || [] ).length -1;        
+          return resolve( this.likes );
+          }
+
+         catch (err) {
+          console.warn('get likes: ', err);
+          resolve(this.likes);
+        }
+      });
+  }
+
+
+
 
   reconnect() {
     return window.safeApp.reconnect(this.app);
