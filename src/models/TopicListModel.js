@@ -85,6 +85,7 @@ export default class TopicListModel {
       this.isLoading = false;
     } catch (err) {
       console.error('addTopic: ', err);
+      // TODO check if data already exist, pop an alert.
       this.isLoading = false;
     }
   }

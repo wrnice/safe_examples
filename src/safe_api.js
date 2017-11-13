@@ -289,6 +289,10 @@ export default class SafeApi {
   * Set up a MutableData for the replies to a Topic with Insert permission for Everyone.
   * Create a Public Mutable Data with a deterministic name. (Hash(location.hostname + topic))
   * Apply the permission set for the MutableData
+  * the mutable contains :
+  *     a special entry for the op ?
+  *     a special entry for the list of likes : an array of ( reply ID - user ID ) pairs
+  *     one entry for each reply, with : author, date, message, ID
   */
   setupReplies(topicname) {
     return new Promise(async (resolve, reject) => {

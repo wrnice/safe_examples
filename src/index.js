@@ -8,6 +8,12 @@ import TopicListModel from './models/TopicListModel';
 
 import './style/style.css';
 
+// TODO css, likes, ignore, ignorelist, last modified
+// TODO make it work across tabs : localstorage ?
+// TODO messages should be conentEditable instead of textareas
+// TODO display the first 'reply' as the OP
+// TODO better css for 'no such topic'
+
 const { DEFAULT_ID, ERROR_MSG } = Constants;
 const topicstore = new TopicListModel();
 const repliestore = new ReplyListModel();

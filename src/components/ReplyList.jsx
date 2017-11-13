@@ -9,10 +9,13 @@ import constant from '../constants.js';
 class ReplyList extends React.Component {
   @observable newMessage = '';
   @observable isLoading
+  @observable replyFormVisible = "hidden";
+  @observable replyButtonVisible = "visible";
+
 
   componentDidMount() {
-    //this.props.store.authorise(this.props.topic);
     this.props.store.authorise(this.props.topic);
+    window.scrollTo(0, document.body.scrollHeight); // scroll to bottom ? did we read this already ? -> session storage ?
     this.setState(
       {
         isLoading: false,
@@ -81,19 +84,42 @@ class ReplyList extends React.Component {
         );
     }
     else {
+
+      var thetopic = window.getParameterByName ( "t", window.location.search );
+
     return (
-      <div className="_replies">
-        <div className="_reply-box">
+      <div className="main">
+
+        <header>
+        <div style={{height: 48 +'px'}}>
+          <img src="images/favicon.ico"  ></img>
+          <a id="mainmenu" className="menu" title="Main Menu" href={constant.HOSTNAME} >Safe Simple Forum
+          </a>
+        </div>
+       </header>
+
+        <div className="messages">
+          <div className="title">{thetopic}</div>
+          {/* <div className="replies-count">{store.replies.length} Reply(s)</div> */}
+          <ul className="replylist">
+            {store.replies.map(reply => (
+              <Reply reply={reply} isOwner={store.isOwner} deleteReply={store.deleteReply} key={reply.id} />
+            ))}
+          </ul>
+        </div>
+        <div id="replybutton" className={"newreply"} onClick={this.replyButtonPressed} style={{visibility: this.replyButtonVisible }}>reply</div>
+
+        <div id="newReplyForm" className="footerform" style={{visibility: this.replyFormVisible }}>
           <form onSubmit={this.handleFormSubmit}>
-            <div className="_reply-users">
-              <label htmlFor="replyUser">Reply as</label>
+            <div className="reply-users">
+              <label htmlFor="replyUser">Reply as </label>
               <select name="replyUser" ref={(c) => { this.name = c; }}>
                 {userList.map((userList, i) => <option key={i} value={userList}>{userList}</option>)}
                 <option value={constant.ANONYMOUS} >{constant.ANONYMOUS}</option>
               </select>
             </div>
             <textarea
-              className="_reply-msg"
+              className="reply-msg"
               placeholder="Enter your reply. Not more than 250 characters."
               name="message"
               maxLength="250"
@@ -101,16 +127,12 @@ class ReplyList extends React.Component {
               required="required"
               onChange={this.handleInputChange}
             />
-            <button className="_reply-post-btn" type="submit" disabled={this.newMessage.length === 0}>Reply</button>
-          </form>
-        </div>
-        <div className="_reply-list">
-          <div className="_replies-count">{store.replies.length} Reply(s)</div>
-          <ul className="_reply-ls">
-            {store.replies.map(reply => (
-              <Reply reply={reply} isOwner={store.isOwner} deleteReply={store.deleteReply} key={reply.id} />
-            ))}
-          </ul>
+          <div className="formbuttons">
+          <div className="cancel" onClick={this.cancelButtonPressed} >cancel</div>
+          <div className="sendbutton" type="submit" disabled={this.newMessage.length === 0}>Reply</div>
+          </div>
+
+        </form>
         </div>
         {isLoading}
         {this.getNetworkComponent()}
@@ -136,7 +158,32 @@ class ReplyList extends React.Component {
     var thetopic = window.getParameterByName ( "t", window.location.search );
     store.addReply(thetopic,this.name.value, this.newMessage);
     this.newMessage = '';
+    this.replyFormVisible = "hidden";
+    this.replyButtonVisible = "visible";
   };
+
+  @action
+  replyButtonPressed = (e) => {
+    console.log ( 'replyButtonPressed');
+    if ( this.replyFormVisible == "visible" ) {
+       this.replyFormVisible = "hidden";
+       this.replyButtonVisible = "visible";
+     } else {
+       this.replyFormVisible = "visible";
+       this.replyButtonVisible = "hidden";
+     }
+  };
+
+  @action
+  cancelButtonPressed = (e) => {
+    console.log ( 'cancelButtonPressed');
+    this.newMessage = '';
+    this.replyFormVisible = "hidden";
+    this.replyButtonVisible = "visible";
+  };
+
+
 }
+
 
 export default ReplyList;

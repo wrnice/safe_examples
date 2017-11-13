@@ -11,5 +11,6 @@ export default class TopicModel {
     this.date = date;
     this.title = title;
     this.id = id;
+    // TODO last modified -> get the date of the last reply in the topic
   }
 }

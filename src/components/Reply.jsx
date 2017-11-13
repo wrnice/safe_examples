@@ -21,16 +21,21 @@ class Reply extends Component {
     const { reply, isOwner } = this.props;
     const deleteLink = isOwner ? this.getDeleteLink() : null;
     return (
-      <li className="reply-ls-i">
-        <div className="_title">
-          <span className="_user">{reply.name}</span>
-          <span className="_date">{new Date(reply.date).toLocaleString()}</span>
-        </div>
-        <div className="_message">{reply.message}</div>
+
+      <div className="reply">
+      <div className="topicdescr">
+         <span className="user">{' '+reply.name+' :'}</span>
+          <span className="replydate">{' '+new Date(reply.date).toLocaleString()+' '}</span>
+      </div>
+
+      <div className="message">{reply.message}</div>
+
         <div className="_opts">
           {deleteLink}
         </div>
-      </li>
+
+      </div>
+
     );
   }
 }

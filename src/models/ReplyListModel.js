@@ -25,8 +25,8 @@ export default class ReplyListModel {
     replies.sort((a, b) => {
       const date1 = new Date(a.date);
       const date2 = new Date(b.date);
-      if (date1 > date2) return -1;
-      if (date1 < date2) return 1;
+      if (date1 < date2) return -1;
+      if (date1 > date2) return 1;
       return 0;
     });
     return replies;
@@ -71,7 +71,7 @@ export default class ReplyListModel {
   addReply = async (topic, name, message) => {
     try {
 
-      
+
       this.isLoading = true;
       const date = new Date().toUTCString();
       const replies = await this.api.postReply(topic ,new ReplyModel(name, message, date));

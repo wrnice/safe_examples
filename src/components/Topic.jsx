@@ -17,25 +17,37 @@ class Topic extends Component {
     );
   }
 
+  // TODO last modified : time elapsed since last reply
+  // -> get last reply in the corresponding mutable, compare its date to the current date, express in minutes / hours / days / monthes / years
+
   render() {
     const { topic, isOwner } = this.props;
     const deleteLink = isOwner ? this.getDeleteLink() : null;
     return (
-      <li className="reply-ls-i">
-        <div className="_title">
-            <span className="_user">{topic.author}</span>
-            <span className="_date">{new Date(topic.date).toLocaleString()}</span>
+
+      <div className="topics">
+        <a href = {"localhost://p:3008?t="+topic.title}  >
+          <div className="topiclink">{topic.title}</div>
+        </a>
+
+        <div className="topicdescr">
+          Published
+            <span className="date">{' '+new Date(topic.date).toLocaleString()+' '}</span>
+            by
+            <span className="user">{' '+topic.author+' '}</span>
+
         </div>
 
-        <a href = {"localhost://p:3008?t="+topic.title}  >
-          <div className="_message">{topic.title}</div>
-        </a>
+
 
         <div className="_opts">
           {deleteLink}
         </div>
 
-      </li>
+
+
+      </div>
+
     );
   }
 }

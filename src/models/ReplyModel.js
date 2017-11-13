@@ -10,5 +10,6 @@ export default class ReplyModel {
     this.date = date;
     this.message = message;
     this.id = id;
+    // TODO likes ?
   }
 }

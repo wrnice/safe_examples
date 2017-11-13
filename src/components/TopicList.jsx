@@ -5,16 +5,24 @@ import { observer } from 'mobx-react';
 import Topic from './Topic';
 import constant from '../constants.js';
 
+
+// TODO topic message should be html
+
+
 @observer
 class TopicList extends React.Component {
   @observable newText = '';
   @observable newTitle = '';
-  @observable isLoading
+  @observable isLoading;
+  @observable topicFormVisible ="hidden";
+  @observable newTopicButtonVisible = "visible";
 
   componentDidMount() {
     this.props.store.authorise(this.props.topic);
+    window.scrollTo(0, document.body.scrollHeight);
     this.setState(
       {
+
         isLoading: false,
       });
   }
@@ -69,21 +77,43 @@ class TopicList extends React.Component {
     if (!store.isEnabled) {
       return this.getNotEnabledContainer();
     }
+
     const isLoading = store.isLoading ? (<div className="_topics-loading"><div className="loader-1">{''}</div></div>) : null;
-    
+
+    // if pushed 'reply' button, topic form should be visible,
+    // else, it should not be rendered
+
     return (
-      <div className="_replies">
-        <div className="_reply-box">
+      <div className="main">
+
+        <header>
+        <div style={{height: 48 +'px'}}>
+          <img src="images/favicon.ico"  ></img>
+          <a id="mainmenu" className="menu" title="Main Menu" href={constant.HOSTNAME} >Safe Simple Forum
+          </a>
+          <span id="createtopic" className={"newtopic"} onClick={this.newTopicButtonPressed} style={{visibility: this.newTopicButtonVisible }}>new topic</span>
+        </div>
+       </header>
+
+        <div className="messages" >
+          <div className="replies-count">{store.topics.length} Topic(s)</div>
+          <ul className="topiclist">
+            {store.topics.map(topic => (
+              <Topic topic={topic} isOwner={store.isOwner} deleteTopic={store.deleteTopic} key={topic.id} />
+            ))}
+          </ul>
+        </div>
+        <div id="newTopicForm" className={"footerform"} style={{visibility: this.topicFormVisible }}>
           <form onSubmit={this.handleFormSubmit}>
-            <div className="_reply-users">
-              <label htmlFor="replyUser">Publish as</label>
+            <div className="reply-users">
+              <label htmlFor="replyUser">Publish as </label>
               <select name="replyUser" ref={(c) => { this.author = c; }}>
                 {userList.map((userList, i) => <option key={i} value={userList}>{userList}</option>)}
                 <option value={constant.ANONYMOUS} >{constant.ANONYMOUS}</option>
               </select>
             </div>
             <textarea
-              className="_reply-title"
+              className="reply-title"
               placeholder="Topic title"
               name="topic_title"
               maxLength="50"
@@ -92,7 +122,7 @@ class TopicList extends React.Component {
               onChange={this.handleTitleInputChange}
             />
             <textarea
-              className="_reply-msg"
+              className="reply-msg"
               placeholder="Type your message here"
               name="topic_text"
               maxLength="50"
@@ -100,17 +130,14 @@ class TopicList extends React.Component {
               required="required"
               onChange={this.handleTextInputChange}
             />
-          <button className="_new-reply-btn" type="submit" disabled={this.newTitle.length === 0}>Publish</button>
+          <div className="formbuttons">
+          <div className="cancel" onClick={this.cancelButtonPressed} >cancel</div>
+          <div className="sendbutton" type="submit" disabled={this.newTitle.length === 0}>Publish</div>
+          </div>
+          
           </form>
         </div>
-        <div className="_reply-list">
-          <div className="_replies-count">{store.topics.length} Topic(s)</div>
-          <ul className="_reply-ls">
-            {store.topics.map(topic => (
-              <Topic topic={topic} isOwner={store.isOwner} deleteTopic={store.deleteTopic} key={topic.id} />
-            ))}
-          </ul>
-        </div>
+
         {isLoading}
         {this.getNetworkComponent()}
       </div>
@@ -139,12 +166,36 @@ class TopicList extends React.Component {
     store.addTopic(this.author.value, this.newTitle, this.newText );
     this.newTitle = '';
     this.newText = '';
+    this.topicFormVisible = "hidden";
+    this.newTopicButtonVisible = "visible";
     // show the topic and replies
     // hide the topic list
     // hide the new topic form
     // show the main menu button
     // change the browser bar url
   };
-}
 
+@action
+newTopicButtonPressed = (e) => {
+  console.log ( 'newTopicButtonPressed');
+  if ( this.topicFormVisible == "visible" ) {
+     this.topicFormVisible = "hidden";
+     this.newTopicButtonVisible = "visible";
+   } else {
+     this.topicFormVisible = "visible";
+     this.newTopicButtonVisible = "hidden";
+   }
+};
+
+@action
+cancelButtonPressed = (e) => {
+  console.log ( 'cancelButtonPressed');
+  this.newTitle = '';
+  this.newText = '';
+  this.topicFormVisible = "hidden";
+  this.newTopicButtonVisible = "visible";
+};
+
+
+}
 export default TopicList;
