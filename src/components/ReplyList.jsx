@@ -133,8 +133,8 @@ class ReplyList extends React.Component {
               onChange={this.handleInputChange}
             />
           <div className="formbuttons">
-          <div className="cancel" onClick={this.cancelButtonPressed} >cancel</div>
-          <div className="sendbutton" type="submit" disabled={this.newMessage.length === 0}>Reply</div>
+          <button className="cancel" onClick={this.cancelButtonPressed} >cancel</button>
+          <button className="sendbutton" type="submit" disabled={this.newMessage.length === 0}>Reply</button>
           </div>
 
         </form>

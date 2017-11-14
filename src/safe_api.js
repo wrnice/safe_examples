@@ -556,8 +556,9 @@ export default class SafeApi {
           var thelikes = await window.safeMutableDataEntries.get(entriesHandle, 'likes' );
           var likes = uintToString(thelikes.buf);
           console.log('get likes: ', likes );
+          console.log('version : ', thelikes.version);
           // now find how many pairs
-          this.likes = ( likes.match(/\[/g) || [] ).length -1;        
+          this.likes = ( likes.match(/\[/g) || [] ).length -1;
           return resolve( this.likes );
           }
 

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { observable, action } from 'mobx';
 import { observer } from 'mobx-react';
 import PropTypes from 'prop-types';
 
@@ -20,6 +21,24 @@ class Reply extends Component {
     );
   }
 
+  componentDidMount() {
+    var heart = '\u2665';
+    document.getElementById('heart').innerHTML=heart;
+  }
+
+  @action
+  heartButtonPressed = (e) => {
+    console.log ( 'heartButtonPressed');
+    // check if we are not anonymous , then if we already liked this reply
+    //
+    // this.api.getPublicNames , parse result for a pair of : our ID, the reply ID
+    //
+    // add  1 like in the mutable : our ID, the reply ID
+    // turn heart color red
+    //document.getElementById('heart').style.color="#fa6c8d";
+
+  };
+
   render() {
     const { reply, isOwner } = this.props;
     const deleteLink = isOwner ? this.getDeleteLink() : null;
@@ -35,7 +54,6 @@ class Reply extends Component {
     });
 
     var howmanylikes = getlikes;
-    console.log ( 'reply : ', howmanylikes );
 
     return (
 
@@ -47,7 +65,10 @@ class Reply extends Component {
 
       <div className="message">{reply.message}</div>
         <div className="replybuttons">
-        <div className="likes"><span id={reply.id}></span> likes {'\u2665'}</div>
+          <div className="likes">
+            <span id={reply.id}></span> likes <span id="heart" className ="heart" onClick={this.heartButtonPressed} title="soon!"></span>
+
+          </div>
         </div>
         <div className="_opts">
           {deleteLink}
@@ -68,5 +89,7 @@ Reply.propTypes = {
   isOwner: PropTypes.bool.isRequired,
   deleteReply: PropTypes.func.isRequired,
 };
+
+
 
 export default Reply;
