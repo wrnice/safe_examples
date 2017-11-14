@@ -79,7 +79,7 @@ export default class TopicListModel {
       const topics = await this.api.publishTopic(new TopicModel(author, title, date, op));
 
       // create a new mutable for the replies to this topic
-      const newreply = await this.api.setupReplies(title);
+      const newreply = await this.api.setupReplies(title); // TODO should use the reply ID instead 
       // , and put the original post as a fisrt reply
       const replies = await this.api.postReply(title,new ReplyModel(author, op, date ));
 

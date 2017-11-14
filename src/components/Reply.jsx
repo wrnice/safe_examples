@@ -22,22 +22,18 @@ class Reply extends Component {
   }
 
   componentDidMount() {
-    var heart = '\u2665';
-    document.getElementById('heart').innerHTML=heart;
+
+       var heart = '\u2665';
+       var elements = document.getElementsByClassName('heart'),
+           n = elements.length;
+       for (var i = 0; i < n; i++) {
+          var e = elements[i];
+           e.innerHTML=heart;
+      };
+
   }
 
-  @action
-  heartButtonPressed = (e) => {
-    console.log ( 'heartButtonPressed');
-    // check if we are not anonymous , then if we already liked this reply
-    //
-    // this.api.getPublicNames , parse result for a pair of : our ID, the reply ID
-    //
-    // add  1 like in the mutable : our ID, the reply ID
-    // turn heart color red
-    //document.getElementById('heart').style.color="#fa6c8d";
 
-  };
 
   render() {
     const { reply, isOwner } = this.props;
@@ -55,10 +51,12 @@ class Reply extends Component {
 
     var howmanylikes = getlikes;
 
+
+
     return (
 
       <div className="reply">
-      <div className="topicdescr">
+      <div className="replydescr">
          <span className="user">{' '+reply.name+' :'}</span>
           <span className="replydate">{' '+new Date(reply.date).toLocaleString()+' '}</span>
       </div>
@@ -66,7 +64,9 @@ class Reply extends Component {
       <div className="message">{reply.message}</div>
         <div className="replybuttons">
           <div className="likes">
-            <span id={reply.id}></span> likes <span id="heart" className ="heart" onClick={this.heartButtonPressed} title="soon!"></span>
+            <span id={reply.id}></span> likes <span id={"heart"+reply.id} className ="heart" onClick={ () => this.heartButtonPressed(reply.id) } title="soon!"></span>
+
+
 
           </div>
         </div>
@@ -78,6 +78,23 @@ class Reply extends Component {
 
     );
   }
+
+  @action
+  heartButtonPressed = (id) => {
+
+  console.log ( 'heartButtonPressed : ID : ', id );
+
+    // check if we are not anonymous , then if we already liked this reply
+    //
+    // this.api.getPublicNames , parse result for a pair of : our ID, the reply ID
+    //
+    // add  1 like in the mutable : our ID, the reply ID
+    // turn heart color red
+    //document.getElementById('heart').style.color="#fa6c8d";
+
+  };
+
+
 }
 
 Reply.propTypes = {
