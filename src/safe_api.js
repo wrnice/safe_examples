@@ -80,8 +80,8 @@ export default class SafeApi {
         const keysLen = await window.safeMutableDataKeys.len(keysHandle);
         // If there is no Public ID return empty list
         if (keysLen === 0) {
-          //return resolve([]); // LIVE : toggle this when live on Safe
-          return resolve(["johny","mary","paul"]); // LIVE : toggle this when live on Safe
+          return resolve([]); // LIVE : toggle this when live on Safe
+          //return resolve(["johny","mary","paul"]); // LIVE : toggle this when live on Safe
         }
         const publicNames = [];
         // get all keys from the conatiner.
