@@ -103,8 +103,8 @@ export default class SafeApi {
         return reject(err);
       }
       // resolve with the decrypted public names
-      // return resolve(decryptedPublicNames);
-      return resolve(["johny","mary","paul"]);
+      return resolve(decryptedPublicNames); // LIVE : toggle this when live on Safe
+      //return resolve(["johny","mary","paul"]);// LIVE : toggle this when live on Safe
 
     });
   }
