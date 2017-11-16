@@ -212,7 +212,6 @@ setUserId = (e) => {
   console.log ( 'setUserId : id : ', id ); //debug
   sessionStorage.setItem('userID', id);
   this.userID = id  ;
-  console.log ( 'this.userID :  ', this.userID ); //debug
 
 };
 

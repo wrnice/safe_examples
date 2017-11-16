@@ -63,7 +63,7 @@ class Reply extends Component {
       var re = new RegExp(reply.id+"", "g");
       var howmanylikes = ( thelikes.match(re) || []).length;
 
-      console.log ( 'reply : ', howmanylikes );
+      //console.log ( 'reply : ', howmanylikes );//debug
       document.getElementById(reply.id).innerHTML=howmanylikes;
       var oneheart = document.getElementById("heart"+reply.id);
       if ( howmanylikes != "0"  ) { oneheart.style.color="#fa6c8d";} ;
@@ -95,28 +95,27 @@ class Reply extends Component {
   @action
   heartButtonPressed = (thetopic,replyId) => {
 
-  console.log ( 'heartButtonPressed : reply ID : ', replyId );
+  //console.log ( 'heartButtonPressed : reply ID : ', replyId ); //debug
 
   var userId = document.getElementById('userID').value;
-  console.log ( 'heartButtonPressed : user ID : ', userId );
+  //console.log ( 'heartButtonPressed : user ID : ', userId ); //debug
 
   var match = userId+","+replyId;
 
   var api = new SafeApi();
   var thetopic = window.getParameterByName ( "t", window.location.search );
 
-  console.log ( 'heartbuttonpressed : thetopic : ', thetopic ); //debug
+  //console.log ( 'heartbuttonpressed : thetopic : ', thetopic ); //debug
 
   var getlikes = api.getlikes( thetopic ).then( function(result)  {
     var likes = result + "";
     var userId = document.getElementById('userID').value;
-    var authorId =
-    console.log ( 'heartbuttonpressed : likes : ', likes ); //debug
+    //console.log ( 'heartbuttonpressed : likes : ', likes ); //debug
     var alreadyLiked = likes.includes(userId+','+replyId);
     var selflike = document.getElementById("author"+replyId).innerHTML.includes(userId);
 
     if ( userId == constant.ANONYMOUS ) { console.log ( "anonymous can't like !");
-    } else if ( selflike ) { console.log ( "can't self like !");
+    } else if (  selflike  ) { console.log ( "can't self like !");
     } else if ( alreadyLiked ) { console.log ( "you already liked");
     } else {
       console.log ( "adding your like");

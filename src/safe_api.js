@@ -80,8 +80,8 @@ export default class SafeApi {
         const keysLen = await window.safeMutableDataKeys.len(keysHandle);
         // If there is no Public ID return empty list
         if (keysLen === 0) {
-          //return resolve([]);
-          return resolve(["johny","mary","paul"]);
+          //return resolve([]); // LIVE : toggle this when live on Safe
+          return resolve(["johny","mary","paul"]); // LIVE : toggle this when live on Safe
         }
         const publicNames = [];
         // get all keys from the conatiner.
@@ -129,10 +129,10 @@ export default class SafeApi {
         if ( !theapp  ) {
           this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
           sessionStorage.setItem("app", this.app );
-          console.log ( "setup : storing " , sessionStorage.getItem("app") , ' - > sessionStorage app ', );
+          //console.log ( "setup : storing " , sessionStorage.getItem("app") , ' - > sessionStorage app ', );//debug
         } else {
           this.app = sessionStorage.getItem("app");
-          console.log ( "setup : fetching " , 'sessionStorage app - > ',this.app );
+          //console.log ( "setup : fetching " , 'sessionStorage app - > ',this.app );//debug
         }
 
         if ( !theauth  ) {
@@ -186,10 +186,10 @@ export default class SafeApi {
         if ( !theapp  ) {
           this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
           sessionStorage.setItem("app", this.app );
-          console.log ( "setup : storing " , sessionStorage.getItem("app") , ' - > sessionStorage app ', );
+          //console.log ( "setup : storing " , sessionStorage.getItem("app") , ' - > sessionStorage app ', );//debug
         } else {
           this.app = sessionStorage.getItem("app");
-          console.log ( "setup : fetching " , 'sessionStorage app - > ',this.app );
+          //console.log ( "setup : fetching " , 'sessionStorage app - > ',this.app );//debug
         }
 
         if ( !theauth  ) {
@@ -385,11 +385,11 @@ export default class SafeApi {
         var auth = await window.safeApp.connectAuthorised(this.app, uri);
         sessionStorage.setItem("app", this.app );
         sessionStorage.setItem("auth", auth );
-        console.log ( sessionStorage.getItem("app") , ' - > sessionStorage app ', );
+        //console.log ( sessionStorage.getItem("app") , ' - > sessionStorage app ', );//debug
         //window.app = this.app;
       } else {
         this.app = sessionStorage.getItem("app");
-        console.log ( 'sessionStorage app - > ',this.app );
+        //console.log ( 'sessionStorage app - > ',this.app );//debug
       }
 
         const hashedName = await window.safeCrypto.sha3Hash(this.app, topicname );
@@ -524,7 +524,7 @@ export default class SafeApi {
     return new Promise(async (resolve) => {
         try {
 
-        console.log ( "getlikes : topic name : ", topicname );
+        //console.log ( "getlikes : topic name : ", topicname );//debug
 
         // are we already initialased ?
         // are we already authorized ?
@@ -537,11 +537,11 @@ export default class SafeApi {
         await window.safeApp.connect(this.app);
         sessionStorage.setItem("app", this.app );
 
-        console.log ( sessionStorage.getItem("app") , ' - > sessionStorage app ', );
+        //console.log ( sessionStorage.getItem("app") , ' - > sessionStorage app ', ); //debug
 
       } else {
         this.app = sessionStorage.getItem("app");
-        console.log ( 'sessionStorage app - > ',this.app );
+        //console.log ( 'sessionStorage app - > ',this.app );//debug
       }
 
           const hashedName = await window.safeCrypto.sha3Hash(this.app, topicname );
@@ -559,8 +559,8 @@ export default class SafeApi {
           }
           var thelikes = await window.safeMutableDataEntries.get(entriesHandle, 'likes' );
           this.likes = uintToString(thelikes.buf);
-          console.log('get likes: ', this.likes );
-          console.log('version : ', thelikes.version);
+          //console.log('get likes: ', this.likes );//debug
+          //console.log('version : ', thelikes.version);//debug
 
 
           return resolve( this.likes );
@@ -582,7 +582,7 @@ export default class SafeApi {
     return new Promise(async (resolve) => {
         try {
 
-        console.log ( "addLike : topic name : ", topicname );
+        //console.log ( "addLike : topic name : ", topicname );//debug
 
         // are we already initialased ?
         // are we already authorized ?
@@ -597,11 +597,11 @@ export default class SafeApi {
         var auth = await window.safeApp.connectAuthorised(this.app, uri);
         sessionStorage.setItem("app", this.app );
         sessionStorage.setItem("auth", auth );
-        console.log ( sessionStorage.getItem("app") , ' - > sessionStorage app ', );
+        //console.log ( sessionStorage.getItem("app") , ' - > sessionStorage app ', ); //debug
         //window.app = this.app;
       } else {
         this.app = sessionStorage.getItem("app");
-        console.log ( 'sessionStorage app - > ',this.app );
+        //console.log ( 'sessionStorage app - > ',this.app ); //debug
       }
 
           const hashedName = await window.safeCrypto.sha3Hash(this.app, topicname );
@@ -611,11 +611,11 @@ export default class SafeApi {
 
           const thelikes = await window.safeMutableData.get(topicMutableData, 'likes');
           var likes = uintToString(thelikes.buf);
-          console.log('add likes: ', likes ); //debug
+          //console.log('add likes: ', likes ); //debug
 
           const newlikes = likes + '[' + userId + ',' + replyId + ']' ;
 
-          console.log ("add likes : newlikes : ",newlikes); //debug
+        //  console.log ("add likes : newlikes : ",newlikes); //debug
 
           const mutation = await window.safeMutableDataMutation.update(mutationHandle, 'likes', newlikes, thelikes.version + 1);
           await window.safeMutableData.applyEntriesMutation(topicMutableData, mutationHandle);
