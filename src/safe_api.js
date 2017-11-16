@@ -80,7 +80,8 @@ export default class SafeApi {
         const keysLen = await window.safeMutableDataKeys.len(keysHandle);
         // If there is no Public ID return empty list
         if (keysLen === 0) {
-          return resolve([]);
+          //return resolve([]);
+          return resolve(["johny","mary","paul"]);
         }
         const publicNames = [];
         // get all keys from the conatiner.
@@ -102,7 +103,9 @@ export default class SafeApi {
         return reject(err);
       }
       // resolve with the decrypted public names
-      return resolve(decryptedPublicNames);
+      // return resolve(decryptedPublicNames);
+      return resolve(["johny","mary","paul"]);
+
     });
   }
 
@@ -154,8 +157,8 @@ export default class SafeApi {
         // create a new permission set
         const permSet = await window.safeMutableData.newPermissionSet(this.app);
         // allowing the user to perform the Insert operation
-        await window.safeMutableDataPermissionsSet.setAllow(permSet, PERMISSIONS.INSERT);
-        // setting the handle as null, anyone can perform the Insert operation
+       await window.safeMutableDataPermissionsSet.setAllow(permSet, PERMISSIONS.INSERT, PERMISSIONS.UPDATE );
+        // setting the handle as null, anyone can perform the Insert and update operation
         await window.safeMutableData.setUserPermissions(this.topicsMutableData, null, permSet, 1);
         resolve();
       } catch (err) {
@@ -312,7 +315,7 @@ export default class SafeApi {
         this.repliesMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
         await window.safeMutableData.quickSetup(
           this.repliesMutableData,
-          {likes: "[0,0]" },
+          { likes: "[0,0]" },
           `${topicname} - Simple Forum`,
           `replies for the topic ${topicname} is saved in this MutableData`,
         );
@@ -515,9 +518,9 @@ export default class SafeApi {
 
   //
   /**
-  * Get likes number for a reply
+  * Get likes for a topic
   */
-  getlikes (topicname,id) {
+  getlikes (topicname) {
     return new Promise(async (resolve) => {
         try {
 
@@ -551,14 +554,15 @@ export default class SafeApi {
           const len = await window.safeMutableDataEntries.len(entriesHandle);
           this.likes = [];
           if (len === 0) {
+            console.log('get likes: nothing...' );
             return resolve(this.likes);
           }
           var thelikes = await window.safeMutableDataEntries.get(entriesHandle, 'likes' );
-          var likes = uintToString(thelikes.buf);
-          console.log('get likes: ', likes );
+          this.likes = uintToString(thelikes.buf);
+          console.log('get likes: ', this.likes );
           console.log('version : ', thelikes.version);
-          // now find how many pairs
-          this.likes = ( likes.match(/\[/g) || [] ).length -1;
+
+
           return resolve( this.likes );
           }
 
@@ -569,8 +573,62 @@ export default class SafeApi {
       });
   }
 
+  //
+  /**
+  * Add a like for a reply in a topic
+  * @param {ReplyModel} replyModel
+  */
+  addLike (topicname,replyId,userId) {
+    return new Promise(async (resolve) => {
+        try {
 
+        console.log ( "addLike : topic name : ", topicname );
 
+        // are we already initialased ?
+        // are we already authorized ?
+        // are we already connected ?
+        var theapp = sessionStorage.getItem("app");
+        var theauth = sessionStorage.getItem("auth");
+
+        if ( !theapp || !theauth ) {
+
+        this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
+        const uri = await window.safeApp.authorise(this.app, APP.containers, APP.opts);
+        var auth = await window.safeApp.connectAuthorised(this.app, uri);
+        sessionStorage.setItem("app", this.app );
+        sessionStorage.setItem("auth", auth );
+        console.log ( sessionStorage.getItem("app") , ' - > sessionStorage app ', );
+        //window.app = this.app;
+      } else {
+        this.app = sessionStorage.getItem("app");
+        console.log ( 'sessionStorage app - > ',this.app );
+      }
+
+          const hashedName = await window.safeCrypto.sha3Hash(this.app, topicname );
+          var topicMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG );
+          const entriesHandle = await window.safeMutableData.getEntries( topicMutableData);
+          const mutationHandle = await window.safeMutableDataEntries.mutate(entriesHandle);
+
+          const thelikes = await window.safeMutableData.get(topicMutableData, 'likes');
+          var likes = uintToString(thelikes.buf);
+          console.log('add likes: ', likes ); //debug
+
+          const newlikes = likes + '[' + userId + ',' + replyId + ']' ;
+
+          console.log ("add likes : newlikes : ",newlikes); //debug
+
+          const mutation = await window.safeMutableDataMutation.update(mutationHandle, 'likes', newlikes, thelikes.version + 1);
+          await window.safeMutableData.applyEntriesMutation(topicMutableData, mutationHandle);
+
+          return resolve( this.likes );
+          }
+
+         catch (err) {
+          console.warn('add likes: ', err);
+          resolve(this.likes);
+        }
+      });
+  }
 
   reconnect() {
     return window.safeApp.reconnect(this.app);

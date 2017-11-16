@@ -4,7 +4,7 @@ import { observer } from 'mobx-react';
 import PropTypes from 'prop-types';
 
 import SafeApi from '../safe_api';
-import CONSTANTS from '../constants';
+import constant from '../constants';
 
 @observer
 class Reply extends Component {
@@ -29,7 +29,21 @@ class Reply extends Component {
        for (var i = 0; i < n; i++) {
           var e = elements[i];
            e.innerHTML=heart;
+           //if some likes, color red
       };
+
+    //   var elements = document.getElementsByClassName('howmanylikes'),
+    //       n = elements.length;
+    //   for (var i = 0; i < n; i++) {
+    //      var e = elements[i];
+    //       var id = e.id;
+    //       var oneheart = document.getElementById("heart"+id);
+    //       oneheart.innerHTML=heart;
+    //       var howmanylikes = e.innerHTML;
+    //       console.log ( "howmanylikes : innerHTML : ", howmanylikes); //debug
+    //       if ( howmanylikes != "0"  ) { oneheart.style.color="#fa6c8d";} ;
+    //       //if some likes, color red
+    //  };
 
   }
 
@@ -43,31 +57,30 @@ class Reply extends Component {
 
     this.api = new SafeApi();
 
-    var getlikes = this.api.getlikes(thetopic,reply.id).then( function(result)  {
-      var likes = result +"";
-      console.log ( 'reply : ', likes );
-      document.getElementById(reply.id).innerHTML=likes;
+    var getlikes = this.api.getlikes(thetopic).then( function(result)  {
+      var thelikes = result +"";
+      // now find how many pairs contain the id
+      var re = new RegExp(reply.id+"", "g");
+      var howmanylikes = ( thelikes.match(re) || []).length;
+
+      console.log ( 'reply : ', howmanylikes );
+      document.getElementById(reply.id).innerHTML=howmanylikes;
+      var oneheart = document.getElementById("heart"+reply.id);
+      if ( howmanylikes != "0"  ) { oneheart.style.color="#fa6c8d";} ;
     });
-
-    var howmanylikes = getlikes;
-
-
 
     return (
 
       <div className="reply">
       <div className="replydescr">
-         <span className="user">{' '+reply.name+' :'}</span>
+         <span id={"author"+reply.id} className="user">{' '+reply.name+' :'}</span>
           <span className="replydate">{' '+new Date(reply.date).toLocaleString()+' '}</span>
       </div>
 
       <div className="message">{reply.message}</div>
         <div className="replybuttons">
           <div className="likes">
-            <span id={reply.id}></span> likes <span id={"heart"+reply.id} className ="heart" onClick={ () => this.heartButtonPressed(reply.id) } title="soon!"></span>
-
-
-
+            <span className="howmanylikes" id={reply.id}></span> likes <span id={"heart"+reply.id} className ="heart" onClick={ () => this.heartButtonPressed(thetopic,reply.id) } title="soon!"></span>
           </div>
         </div>
         <div className="_opts">
@@ -80,17 +93,49 @@ class Reply extends Component {
   }
 
   @action
-  heartButtonPressed = (id) => {
+  heartButtonPressed = (thetopic,replyId) => {
 
-  console.log ( 'heartButtonPressed : ID : ', id );
+  console.log ( 'heartButtonPressed : reply ID : ', replyId );
 
-    // check if we are not anonymous , then if we already liked this reply
-    //
-    // this.api.getPublicNames , parse result for a pair of : our ID, the reply ID
-    //
-    // add  1 like in the mutable : our ID, the reply ID
-    // turn heart color red
-    //document.getElementById('heart').style.color="#fa6c8d";
+  var userId = document.getElementById('userID').value;
+  console.log ( 'heartButtonPressed : user ID : ', userId );
+
+  var match = userId+","+replyId;
+
+  var api = new SafeApi();
+  var thetopic = window.getParameterByName ( "t", window.location.search );
+
+  console.log ( 'heartbuttonpressed : thetopic : ', thetopic ); //debug
+
+  var getlikes = api.getlikes( thetopic ).then( function(result)  {
+    var likes = result + "";
+    var userId = document.getElementById('userID').value;
+    var authorId =
+    console.log ( 'heartbuttonpressed : likes : ', likes ); //debug
+    var alreadyLiked = likes.includes(userId+','+replyId);
+    var selflike = document.getElementById("author"+replyId).innerHTML.includes(userId);
+
+    if ( userId == constant.ANONYMOUS ) { console.log ( "anonymous can't like !");
+    } else if ( selflike ) { console.log ( "can't self like !");
+    } else if ( alreadyLiked ) { console.log ( "you already liked");
+    } else {
+      console.log ( "adding your like");
+      // insert userID,replyID in the likes mutable key
+      var api = new SafeApi();
+      var thetopic = window.getParameterByName ( "t", window.location.search );
+      var addlike = api.addLike ( thetopic , replyId, userId ).then( function()  {
+      // increment the like count
+      var re = new RegExp(replyId, "g");
+      var newlikes = ( likes.match(re) || [] ).length +1;
+      document.getElementById(replyId).innerHTML=newlikes;
+      //color the heart :
+      document.getElementById("heart"+replyId).style.color="#fa6c8d";
+
+
+
+    });
+  }
+  });
 
   };
 

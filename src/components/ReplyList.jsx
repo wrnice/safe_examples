@@ -4,11 +4,16 @@ import { observer } from 'mobx-react';
 
 import Reply from './Reply';
 import constant from '../constants.js';
+import SafeApi from '../safe_api';
 
 @observer
 class ReplyList extends React.Component {
   @observable newMessage = '';
-  @observable isLoading
+  @observable userID = sessionStorage.getItem("userID") || constant.ANONYMOUS;
+  //var theuserId = sessionStorage.getItem("userID");
+  //console.log ( "topiclist : sessionstorage userID : ", theuserId);
+  //if ( theuserId ) { this.userID = theuserId };
+  @observable isLoading;
   @observable replyFormVisible = "hidden";
   @observable replyButtonVisible = "visible";
 
@@ -20,6 +25,7 @@ class ReplyList extends React.Component {
       {
         isLoading: false,
       });
+
   }
 
   getNetworkComponent() {
@@ -63,6 +69,7 @@ class ReplyList extends React.Component {
   }
 
   render() {
+
     const store = this.props.store;
     const userList = store.publicNames;
     if (store.isAuthorising) {
@@ -87,8 +94,6 @@ class ReplyList extends React.Component {
 
       var thetopic = window.getParameterByName ( "t", window.location.search );
 
-      var theid = window.getParameterByName ( "i", window.location.search );
-
     return (
       <div className="main">
 
@@ -97,32 +102,35 @@ class ReplyList extends React.Component {
           <img src="images/favicon.ico"  ></img>
           <a id="mainmenu" className="menu" title="Main Menu" href={constant.HOSTNAME} >Safe Simple Forum
           </a>
+          <div className="loggedas">
+            <label htmlFor="userId">logged as </label>
+            <select id="userID" name="userID" onChange ={ this.setUserId } value={this.userID}>
+              {userList.map((userList, i) => <option key={i} value={userList}>{userList}</option>)}
+              <option value={constant.ANONYMOUS} >{constant.ANONYMOUS}</option>
+            </select>
+
+          </div>
         </div>
        </header>
 
         <div className="messages">
+
           <div className="title">{thetopic}</div>
+
           {/* <div className="replies-count">{store.replies.length} Reply(s)</div> */}
           <ul className="replylist">
-            {store.replies.map(reply => ( // TODO 'likes' are not a reply ! should not be part of replies
+            {store.replies.map(reply => (
               <Reply reply={reply} isOwner={store.isOwner} deleteReply={store.deleteReply} key={reply.id} />
-
             ))}
           </ul>
         </div>
 
-        <div id="replybutton" className={"newreply"} onClick={this.replyButtonPressed} style={{visibility: this.replyButtonVisible }}>reply</div>
+        <button id="replybutton" className={"newreply"} onClick={this.replyButtonPressed} style={{visibility: this.replyButtonVisible }}>reply</button>
 
 
         <div id="newReplyForm" className="footerform" style={{visibility: this.replyFormVisible }}>
           <form onSubmit={this.handleFormSubmit}>
-            <div className="reply-users">
-              <label htmlFor="replyUser">Reply as </label>
-              <select name="replyUser" ref={(c) => { this.name = c; }}>
-                {userList.map((userList, i) => <option key={i} value={userList}>{userList}</option>)}
-                <option value={constant.ANONYMOUS} >{constant.ANONYMOUS}</option>
-              </select>
-            </div>
+
             <textarea
               className="reply-msg"
               placeholder="Enter your reply. Not more than 250 characters."
@@ -155,14 +163,17 @@ class ReplyList extends React.Component {
   handleFormSubmit = (e) => {
     e.preventDefault();
 
+    var userId = document.getElementById('userID').value;
+
     const store = this.props.store;
-    if (this.name.value === '' || this.newMessage === '') {
+    if (userId === '' || this.newMessage === '') {
       window.alert('Please select your ID and enter reply');
       return;
     }
     var thetopic = window.getParameterByName ( "t", window.location.search );
-    var theid = window.getParameterByName ( "i", window.location.search );
-    store.addReply(thetopic,this.name.value, this.newMessage);
+
+
+    store.addReply(thetopic,userId, this.newMessage);
     this.newMessage = '';
     this.replyFormVisible = "hidden";
     this.replyButtonVisible = "visible";
@@ -187,6 +198,16 @@ class ReplyList extends React.Component {
     this.replyFormVisible = "hidden";
     this.replyButtonVisible = "visible";
   };
+
+  @action
+  setUserId = (e) => {
+    var id = e.target.value;
+    console.log ( 'setUserId : id : ', id ); //debug
+    sessionStorage.setItem('userID', id);
+    this.userID= id  ;
+      console.log ( 'this.userID :  ', this.userID ); //debug
+  };
+
 
 
 }

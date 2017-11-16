@@ -14,9 +14,11 @@ import './style/style.css';
 // TODO display the first 'reply' as the OP
 // TODO better css for 'no such topic'
 
-const { DEFAULT_ID, ERROR_MSG } = Constants;
+const { DEFAULT_ID, ERROR_MSG, ANONYMOUS } = Constants;
 const topicstore = new TopicListModel();
 const repliestore = new ReplyListModel();
+
+window.userId = ANONYMOUS;
 
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;

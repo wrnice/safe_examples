@@ -6,13 +6,19 @@ import Topic from './Topic';
 import constant from '../constants.js';
 
 
-// TODO topic message should be html
+// TODO topic message should be editable html
+// TODO userId should survive on url change, new tab
+// TODO form inputs should all be validated before being sent
 
 
 @observer
 class TopicList extends React.Component {
   @observable newText = '';
   @observable newTitle = '';
+  @observable userID = sessionStorage.getItem("userID") || constant.ANONYMOUS;
+  //var theuserId = sessionStorage.getItem("userID");
+  //console.log ( "topiclist : sessionstorage userID : ", theuserId);
+  //if ( theuserId ) { this.userID = theuserId };
   @observable isLoading;
   @observable topicFormVisible ="hidden";
   @observable newTopicButtonVisible = "visible";
@@ -25,6 +31,7 @@ class TopicList extends React.Component {
 
         isLoading: false,
       });
+
   }
 
   getNetworkComponent() {
@@ -68,6 +75,7 @@ class TopicList extends React.Component {
   }
 
   render() {
+
     const store = this.props.store;
     const userList = store.publicNames;
     if (store.isAuthorising) {
@@ -79,9 +87,14 @@ class TopicList extends React.Component {
     }
 
     const isLoading = store.isLoading ? (<div className="_topics-loading"><div className="loader-1">{''}</div></div>) : null;
-
-    // if pushed 'reply' button, topic form should be visible,
-    // else, it should not be rendered
+    //
+    // <div className="reply-users">
+    //   <label htmlFor="replyUser">Publish as </label>
+    //   <select name="replyUser" ref={(c) => { this.author = c; }}>
+    //     {userList.map((userList, i) => <option key={i} value={userList}>{userList}</option>)}
+    //     <option value={constant.ANONYMOUS} >{constant.ANONYMOUS}</option>
+    //   </select>
+    // </div>
 
     return (
       <div className="main">
@@ -91,6 +104,11 @@ class TopicList extends React.Component {
           <img src="images/favicon.ico"  ></img>
           <a id="mainmenu" className="menu" title="Main Menu" href={constant.HOSTNAME} >Safe Simple Forum
           </a>
+          <span id="loggedAs" className ="loggedas" >logged as : <select id="userID" name="UserID" onChange={this.setUserId} value={this.userID}>
+              {userList.map((userList, i) => <option key={i} value={userList}>{userList}</option>)}
+              <option value={constant.ANONYMOUS} >{constant.ANONYMOUS}</option>
+            </select>
+          </span>
           <span id="createtopic" className={"newtopic"} onClick={this.newTopicButtonPressed} style={{visibility: this.newTopicButtonVisible }}>new topic</span>
         </div>
        </header>
@@ -105,13 +123,7 @@ class TopicList extends React.Component {
         </div>
         <div id="newTopicForm" className={"footerform"} style={{visibility: this.topicFormVisible }}>
           <form onSubmit={this.handleFormSubmit}>
-            <div className="reply-users">
-              <label htmlFor="replyUser">Publish as </label>
-              <select name="replyUser" ref={(c) => { this.author = c; }}>
-                {userList.map((userList, i) => <option key={i} value={userList}>{userList}</option>)}
-                <option value={constant.ANONYMOUS} >{constant.ANONYMOUS}</option>
-              </select>
-            </div>
+
             <textarea
               className="reply-title"
               placeholder="Topic title"
@@ -158,12 +170,14 @@ class TopicList extends React.Component {
   handleFormSubmit = (e) => {
     e.preventDefault();
 
+    var userId = document.getElementById('userID').value;
+
     const store = this.props.store;
-    if (this.author.value === '' || this.newTitle === '' || this.newText === '') {
+    if ( userId === '' || this.newTitle === '' || this.newText === '') {
       window.alert('Please select your ID, and enter your topic title and text');
       return;
     }
-    store.addTopic(this.author.value, this.newTitle, this.newText );
+    store.addTopic(userId, this.newTitle, this.newText );
     this.newTitle = '';
     this.newText = '';
     this.topicFormVisible = "hidden";
@@ -182,6 +196,7 @@ newTopicButtonPressed = (e) => {
    }
 };
 
+
 @action
 cancelButtonPressed = (e) => {
   console.log ( 'cancelButtonPressed');
@@ -189,6 +204,16 @@ cancelButtonPressed = (e) => {
   this.newText = '';
   this.topicFormVisible = "hidden";
   this.newTopicButtonVisible = "visible";
+};
+
+@action
+setUserId = (e) => {
+  var id = e.target.value;
+  console.log ( 'setUserId : id : ', id ); //debug
+  sessionStorage.setItem('userID', id);
+  this.userID = id  ;
+  console.log ( 'this.userID :  ', this.userID ); //debug
+
 };
 
 
