@@ -281,8 +281,8 @@ export default class SafeApi {
 
         const publicNames = await this.getPublicNames();
         const currPublicID = hostName.split(DOT).slice(1).join(DOT);
-        resolve(publicNames.indexOf(currPublicID) > -1);
-        //resolve(true);
+        resolve(publicNames.indexOf(currPublicID) > -1); // LIVE : uncomment this !!
+        //resolve(true); // LIVE : comment this !!
       } catch (err) {
         resolve(false);
       }
