@@ -3,7 +3,7 @@ export default {
   ANONYMOUS: 'Anonymous',
   DEFAULT_ID: 'topics',
   PUBLIC_NAMES_CONTAINER: '_publicNames',
-  HOSTNAME: 'simpleforum', // LIVE : CHANGE THIS !!
+  HOSTNAME: 'yourhostname', // LIVE : CHANGE THIS !!
   NET_STATE: {
     INIT: 'Init',
     DISCONNECTED: 'Disconnected',
