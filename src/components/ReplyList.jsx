@@ -204,7 +204,7 @@ class ReplyList extends React.Component {
     var id = e.target.value;
     console.log ( 'setUserId : id : ', id ); //debug
     sessionStorage.setItem('userID', id);
-    this.userID= id  ;      
+    this.userID= id  ;
   };
 
 
