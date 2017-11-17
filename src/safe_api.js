@@ -325,6 +325,9 @@ export default class SafeApi {
         await window.safeMutableDataPermissionsSet.setAllow(permSet, PERMISSIONS.INSERT);
         // setting the handle as null, anyone can perform the Insert operation
         await window.safeMutableData.setUserPermissions(this.repliesMutableData, null, permSet, 1);
+        await window.safeMutableDataPermissionsSet.setAllow(permSet, PERMISSIONS.UPDATE);
+        // setting the handle as null, anyone can perform the Update operation
+        await window.safeMutableData.setUserPermissions(this.repliesMutableData, null, permSet, 2);
         resolve();
       } catch (err) {
         reject(err);
