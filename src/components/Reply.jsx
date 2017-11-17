@@ -111,7 +111,7 @@ class Reply extends Component {
     var likes = result + "";
     var userId = document.getElementById('userID').value;
     //console.log ( 'heartbuttonpressed : likes : ', likes ); //debug
-    var alreadyLiked = likes.includes(userId+','+replyId);
+    var alreadyLiked = likes.includes('['+userId+','+replyId);
     var selflike = document.getElementById("author"+replyId).innerHTML.includes(userId);
 
     if ( userId == constant.ANONYMOUS ) { console.log ( "anonymous can't like !");

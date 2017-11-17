@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
 import PropTypes from 'prop-types';
+import constant from '../constants.js';
 
 @observer
 class Topic extends Component {
@@ -26,7 +27,7 @@ class Topic extends Component {
     return (
 
       <div className="topics">
-        <a href = {"localhost://p:3008?t="+topic.title}  >
+        <a href = {constant.HOSTNAME+"?t="+topic.title}  >
           <div className="topiclink">{topic.title}</div>
         </a>
 
