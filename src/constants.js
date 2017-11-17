@@ -1,9 +1,9 @@
 export default {
-  FORUMNAME: 'SafeSimpleForumV1.7',
+  FORUMNAME: 'SafeSimpleForumV1.15',
   ANONYMOUS: 'Anonymous',
   DEFAULT_ID: 'topics',
   PUBLIC_NAMES_CONTAINER: '_publicNames',
-  HOSTNAME: 'safe://simpleforum2', // LIVE : CHANGE THIS !!
+  HOSTNAME: 'safe://simple-forum', // LIVE : CHANGE THIS !!
   NET_STATE: {
     INIT: 'Init',
     DISCONNECTED: 'Disconnected',
