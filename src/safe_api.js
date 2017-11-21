@@ -7,6 +7,7 @@ const {
   ERROR_CODE,
   PERMISSIONS,
   PUBLIC_NAMES_CONTAINER,
+  HOSTNAME,
 } = Constants;
 
 // Unique TYPE_TAG for refering the MutableData. Number can be anything above the reserved rage (0-15000)
@@ -28,8 +29,8 @@ const APP = {
     name: `${hostName}-simple-forum`,
     vendor: 'Nice',
   },
-  opts: {},
-  containers: {
+  opts: { own_container: false },
+  containers: {    
     _publicNames: [PERMISSIONS.READ],
   },
 };
@@ -80,8 +81,8 @@ export default class SafeApi {
         const keysLen = await window.safeMutableDataKeys.len(keysHandle);
         // If there is no Public ID return empty list
         if (keysLen === 0) {
-          //return resolve([]); // LIVE : toggle this when live on Safe
-          return resolve(["johny","mary","paul"]); // LIVE : toggle this when live on Safe
+          return resolve([]); // LIVE : toggle this when live on Safe
+          //return resolve(["johny","mary","paul"]); // LIVE : toggle this when live on Safe
         }
         const publicNames = [];
         // get all keys from the conatiner.
@@ -103,8 +104,8 @@ export default class SafeApi {
         return reject(err);
       }
       // resolve with the decrypted public names
-      // return resolve(decryptedPublicNames);
-      return resolve(["johny","mary","paul"]);
+      return resolve(decryptedPublicNames); // LIVE : toggle this when live on Safe
+      //return resolve(["johny","mary","paul"]);// LIVE : toggle this when live on Safe
 
     });
   }
@@ -157,9 +158,10 @@ export default class SafeApi {
         // create a new permission set
         const permSet = await window.safeMutableData.newPermissionSet(this.app);
         // allowing the user to perform the Insert operation
-       await window.safeMutableDataPermissionsSet.setAllow(permSet, PERMISSIONS.INSERT, PERMISSIONS.UPDATE );
+        await window.safeMutableDataPermissionsSet.setAllow(permSet, PERMISSIONS.INSERT  ); // ???
         // setting the handle as null, anyone can perform the Insert and update operation
         await window.safeMutableData.setUserPermissions(this.topicsMutableData, null, permSet, 1);
+
         resolve();
       } catch (err) {
         reject(err);
@@ -311,7 +313,7 @@ export default class SafeApi {
         //if (!isOwner) {
         //  throw new Error(ERROR_MSG.PUBLIC_ID_DOES_NOT_MATCH);
         //}
-        const hashedName = await window.safeCrypto.sha3Hash(this.app, topicname );
+        const hashedName = await window.safeCrypto.sha3Hash(this.app, HOSTNAME+topicname );
         this.repliesMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
         await window.safeMutableData.quickSetup(
           this.repliesMutableData,
@@ -325,6 +327,9 @@ export default class SafeApi {
         await window.safeMutableDataPermissionsSet.setAllow(permSet, PERMISSIONS.INSERT);
         // setting the handle as null, anyone can perform the Insert operation
         await window.safeMutableData.setUserPermissions(this.repliesMutableData, null, permSet, 1);
+        await window.safeMutableDataPermissionsSet.setAllow(permSet, PERMISSIONS.UPDATE);
+        // setting the handle as null, anyone can perform the Insert operation
+        await window.safeMutableData.setUserPermissions(this.repliesMutableData, null, permSet, 2);
         resolve();
       } catch (err) {
         reject(err);
@@ -341,7 +346,7 @@ export default class SafeApi {
       try {
         console.log ( 'postreplies');
 
-        const hashedName = await window.safeCrypto.sha3Hash(this.app, topicname );
+        const hashedName = await window.safeCrypto.sha3Hash(this.app, HOSTNAME+topicname );
         var repliesMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
 
         const entriesHandle = await window.safeMutableData.getEntries(repliesMutableData);
@@ -392,7 +397,7 @@ export default class SafeApi {
         //console.log ( 'sessionStorage app - > ',this.app );//debug
       }
 
-        const hashedName = await window.safeCrypto.sha3Hash(this.app, topicname );
+        const hashedName = await window.safeCrypto.sha3Hash(this.app, HOSTNAME+topicname );
         this.repliesMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
 
         const entriesHandle = await window.safeMutableData.getEntries(this.repliesMutableData);
@@ -544,7 +549,7 @@ export default class SafeApi {
         //console.log ( 'sessionStorage app - > ',this.app );//debug
       }
 
-          const hashedName = await window.safeCrypto.sha3Hash(this.app, topicname );
+          const hashedName = await window.safeCrypto.sha3Hash(this.app, HOSTNAME+topicname );
           var topicMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG );
 
 
@@ -584,27 +589,30 @@ export default class SafeApi {
 
         //console.log ( "addLike : topic name : ", topicname );//debug
 
-        // are we already initialased ?
-        // are we already authorized ?
-        // are we already connected ?
-        var theapp = sessionStorage.getItem("app");
-        var theauth = sessionStorage.getItem("auth");
+      // are we already initialased ?
+      // are we already authorized ?
+      // are we already connected ?
+      var theapp = sessionStorage.getItem("app");
+      var theauth = sessionStorage.getItem("auth");
 
-        if ( !theapp || !theauth ) {
-
+      if ( !theapp  ) {
         this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
-        const uri = await window.safeApp.authorise(this.app, APP.containers, APP.opts);
-        var auth = await window.safeApp.connectAuthorised(this.app, uri);
         sessionStorage.setItem("app", this.app );
-        sessionStorage.setItem("auth", auth );
-        //console.log ( sessionStorage.getItem("app") , ' - > sessionStorage app ', ); //debug
-        //window.app = this.app;
+        //console.log ( "setup : storing " , sessionStorage.getItem("app") , ' - > sessionStorage app ', );//debug
       } else {
         this.app = sessionStorage.getItem("app");
-        //console.log ( 'sessionStorage app - > ',this.app ); //debug
+        //console.log ( "setup : fetching " , 'sessionStorage app - > ',this.app );//debug
       }
 
-          const hashedName = await window.safeCrypto.sha3Hash(this.app, topicname );
+      if ( !theauth  ) {
+      const uri = await window.safeApp.authorise(this.app, APP.containers, APP.opts);
+      var auth = await window.safeApp.connectAuthorised(this.app, uri);
+
+              sessionStorage.setItem("auth", auth );
+              }
+
+
+          const hashedName = await window.safeCrypto.sha3Hash(this.app, HOSTNAME+topicname );
           var topicMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG );
           const entriesHandle = await window.safeMutableData.getEntries( topicMutableData);
           const mutationHandle = await window.safeMutableDataEntries.mutate(entriesHandle);
@@ -618,7 +626,7 @@ export default class SafeApi {
         //  console.log ("add likes : newlikes : ",newlikes); //debug
 
           const mutation = await window.safeMutableDataMutation.update(mutationHandle, 'likes', newlikes, thelikes.version + 1);
-          await window.safeMutableData.applyEntriesMutation(topicMutableData, mutationHandle);
+          await window.safeMutableData.applyEntriesMutation(topicMutableData, mutationHandle);  // TODO ACCESS DENIED if not owner
 
           return resolve( this.likes );
           }

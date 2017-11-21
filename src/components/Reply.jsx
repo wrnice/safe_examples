@@ -60,7 +60,7 @@ class Reply extends Component {
     var getlikes = this.api.getlikes(thetopic).then( function(result)  {
       var thelikes = result +"";
       // now find how many pairs contain the id
-      var re = new RegExp(reply.id+"", "g");
+      var re = new RegExp(reply.id+"", "g"); //should be hashed
       var howmanylikes = ( thelikes.match(re) || []).length;
 
       //console.log ( 'reply : ', howmanylikes );//debug
@@ -80,7 +80,7 @@ class Reply extends Component {
       <div className="message">{reply.message}</div>
         <div className="replybuttons">
           <div className="likes">
-            <span className="howmanylikes" id={reply.id}></span> likes <span id={"heart"+reply.id} className ="heart" onClick={ () => this.heartButtonPressed(thetopic,reply.id) } title="soon!"></span>
+            <span className="howmanylikes" id={reply.id}></span> likes <span id={"heart"+reply.id} className ="heart" onClick={ () => this.heartButtonPressed(thetopic,reply.id) } ></span>
           </div>
         </div>
         <div className="_opts">
@@ -111,7 +111,7 @@ class Reply extends Component {
     var likes = result + "";
     var userId = document.getElementById('userID').value;
     //console.log ( 'heartbuttonpressed : likes : ', likes ); //debug
-    var alreadyLiked = likes.includes(userId+','+replyId);
+    var alreadyLiked = likes.includes('['+userId+','+replyId); // TODO should be hashed
     var selflike = document.getElementById("author"+replyId).innerHTML.includes(userId);
 
     if ( userId == constant.ANONYMOUS ) { console.log ( "anonymous can't like !");
@@ -122,9 +122,9 @@ class Reply extends Component {
       // insert userID,replyID in the likes mutable key
       var api = new SafeApi();
       var thetopic = window.getParameterByName ( "t", window.location.search );
-      var addlike = api.addLike ( thetopic , replyId, userId ).then( function()  {
+      var addlike = api.addLike ( thetopic , replyId, userId ).then( function()  { // TODO should be hashed
       // increment the like count
-      var re = new RegExp(replyId, "g");
+      var re = new RegExp(replyId, "g"); // TODO should be hashed
       var newlikes = ( likes.match(re) || [] ).length +1;
       document.getElementById(replyId).innerHTML=newlikes;
       //color the heart :

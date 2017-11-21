@@ -135,9 +135,9 @@ class TopicList extends React.Component {
             />
             <textarea
               className="reply-msg"
-              placeholder="Type your message here"
+              placeholder="Type your message here. 500 char maxi"
               name="topic_text"
-              maxLength="50"
+              maxLength="500"
               value={this.newText}
               required="required"
               onChange={this.handleTextInputChange}
