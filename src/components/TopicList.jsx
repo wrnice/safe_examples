@@ -5,11 +5,10 @@ import { observer } from 'mobx-react';
 import Topic from './Topic';
 import constant from '../constants.js';
 
+import SimpleMDE from 'react-simplemde-editor';
 
-// TODO topic message should be editable html
 // TODO userId should survive on url change, new tab
 // TODO form inputs should all be validated before being sent
-
 
 @observer
 class TopicList extends React.Component {
@@ -121,10 +120,11 @@ class TopicList extends React.Component {
             ))}
           </ul>
         </div>
-        <div id="newTopicForm" className={"footerform"} style={{visibility: this.topicFormVisible }}>
-          <form onSubmit={this.handleFormSubmit}>
+        <div id="newTopicForm" className={"topicfooterform"} style={{visibility: this.topicFormVisible }}>
+
 
             <textarea
+              id="topictitlearea"
               className="reply-title"
               placeholder="Topic title"
               name="topic_title"
@@ -133,21 +133,32 @@ class TopicList extends React.Component {
               required="required"
               onChange={this.handleTitleInputChange}
             />
-            <textarea
+
+
+
+            <SimpleMDE
+              id="topictexteditor"
               className="reply-msg"
               placeholder="Type your message here. 500 char maxi"
               name="topic_text"
-              maxLength="500"
+              onChange={this.handleTextInputChange}
               value={this.newText}
               required="required"
-              onChange={this.handleTextInputChange}
-            />
+                options={{
+                  autoDownloadFontAwesome:false,
+                  autofocus: true,
+                  spellChecker: false,
+                  hideIcons: ["guide"],
+                  promptURLs:false
+                                    }}
+                />
+
           <div className="formbuttons">
           <button className="cancel" onClick={this.cancelButtonPressed} >cancel</button>
-          <button className="sendbutton" type="submit" disabled={this.newTitle.length === 0}>Publish</button>
+          <button className="sendbutton" onClick={this.handleFormSubmit} >Publish</button>
           </div>
 
-          </form>
+
         </div>
 
         {isLoading}
@@ -157,13 +168,14 @@ class TopicList extends React.Component {
   }
 
   @action
-  handleTitleInputChange = (e) => {
-    this.newTitle = e.target.value;
+  handleTextInputChange = (value) => {
+     this.newText = value;
   };
 
   @action
-  handleTextInputChange = (e) => {
-    this.newText = e.target.value;
+  handleTitleInputChange = (e) => {
+    e.preventDefault();    
+    this.newTitle = e.target.value;
   };
 
   @action

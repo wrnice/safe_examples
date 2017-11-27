@@ -6,13 +6,12 @@ import Reply from './Reply';
 import constant from '../constants.js';
 import SafeApi from '../safe_api';
 
+import SimpleMDE from 'react-simplemde-editor';
+
 @observer
 class ReplyList extends React.Component {
   @observable newMessage = '';
   @observable userID = sessionStorage.getItem("userID") || constant.ANONYMOUS;
-  //var theuserId = sessionStorage.getItem("userID");
-  //console.log ( "topiclist : sessionstorage userID : ", theuserId);
-  //if ( theuserId ) { this.userID = theuserId };
   @observable isLoading;
   @observable replyFormVisible = "hidden";
   @observable replyButtonVisible = "visible";
@@ -94,6 +93,18 @@ class ReplyList extends React.Component {
 
       var thetopic = window.getParameterByName ( "t", window.location.search );
 
+      // <textarea
+        // className="reply-msg"
+        // placeholder="Enter your reply. Not more than 250 characters."
+        // name="message"
+        // maxLength="250"
+        // value={this.newMessage}
+        // required="required"
+        // onChange={this.handleInputChange}
+      // />
+
+
+
     return (
       <div className="main">
 
@@ -127,25 +138,31 @@ class ReplyList extends React.Component {
 
         <button id="replybutton" className={"newreply"} onClick={this.replyButtonPressed} style={{visibility: this.replyButtonVisible }}>reply</button>
 
-
         <div id="newReplyForm" className="footerform" style={{visibility: this.replyFormVisible }}>
-          <form onSubmit={this.handleFormSubmit}>
 
-            <textarea
-              className="reply-msg"
-              placeholder="Enter your reply. Not more than 250 characters."
-              name="message"
-              maxLength="250"
-              value={this.newMessage}
-              required="required"
-              onChange={this.handleInputChange}
-            />
+              <SimpleMDE
+                className="reply-msg"
+                placeholder="Enter your reply here..."
+                name="message"
+                onChange={this.handleChange}
+                value={this.newMessage}
+                required="required"
+                  options={{
+                    autoDownloadFontAwesome:false,
+                    spellChecker: false,
+                    hideIcons: ["guide"],
+                    promptURLs:false
+                                      }}
+                  />
+
           <div className="formbuttons">
           <button className="cancel" onClick={this.cancelButtonPressed} >cancel</button>
-          <button className="sendbutton" type="submit" disabled={this.newMessage.length === 0}>Reply</button>
+          <button className="sendbutton" onClick={this.handleFormSubmit} >Reply</button>
+
+
           </div>
 
-        </form>
+
         </div>
         {isLoading}
         {this.getNetworkComponent()}
@@ -155,13 +172,17 @@ class ReplyList extends React.Component {
 }
 
   @action
-  handleInputChange = (e) => {
-    this.newMessage = e.target.value;
+  handleChange = (value) => {
+    this.newMessage = value;
   };
 
   @action
   handleFormSubmit = (e) => {
     e.preventDefault();
+
+    console.log ( 'submit Button Pressed');
+
+    console.log ( 'message : ', this.newMessage );
 
     var userId = document.getElementById('userID').value;
 

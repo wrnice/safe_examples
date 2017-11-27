@@ -54,9 +54,7 @@ header {
     margin: 12px 0 0 0;
   }
 
-.reply-msg {
-  margin: 8px;
-}
+
 
 .submit-btn {
   margin: 8px;
@@ -166,10 +164,14 @@ padding: 10px 0 10px 0;
 }
 .reply-msg {
   width: 95%;
-  height: 190px;
+  height: 300px;
   margin: 16px 0 0 0;
   background-color: #fff;
 }
+
+/*.reply-msg {
+  margin: 8px;
+}*/
 
 .reply-title {
   width : 300px;

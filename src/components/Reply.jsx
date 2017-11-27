@@ -6,6 +6,8 @@ import PropTypes from 'prop-types';
 import SafeApi from '../safe_api';
 import constant from '../constants';
 
+import snarkdown from 'snarkdown';
+
 @observer
 class Reply extends Component {
   getDeleteLink() {
@@ -75,9 +77,8 @@ class Reply extends Component {
       <div className="replydescr">
          <span id={"author"+reply.id} className="user">{' '+reply.name+' :'}</span>
           <span className="replydate">{' '+new Date(reply.date).toLocaleString()+' '}</span>
-      </div>
-
-      <div className="message">{reply.message}</div>
+      </div>      
+      <div className="message" dangerouslySetInnerHTML={{ __html: snarkdown(reply.message) }}></div>
         <div className="replybuttons">
           <div className="likes">
             <span className="howmanylikes" id={reply.id}></span> likes <span id={"heart"+reply.id} className ="heart" onClick={ () => this.heartButtonPressed(thetopic,reply.id) } ></span>
