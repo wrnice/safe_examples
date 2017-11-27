@@ -148,7 +148,7 @@ class TopicList extends React.Component {
                   autoDownloadFontAwesome:false,
                   autofocus: true,
                   spellChecker: false,
-                  hideIcons: ["guide"],
+                  hideIcons: ["guide","side-by-side","fullscreen","link","image"], //TODO compile simpleMDE with safe:// instead of http://
                   promptURLs:false
                                     }}
                 />
@@ -174,7 +174,7 @@ class TopicList extends React.Component {
 
   @action
   handleTitleInputChange = (e) => {
-    e.preventDefault();    
+    e.preventDefault();
     this.newTitle = e.target.value;
   };
 

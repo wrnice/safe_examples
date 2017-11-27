@@ -150,7 +150,7 @@ class ReplyList extends React.Component {
                   options={{
                     autoDownloadFontAwesome:false,
                     spellChecker: false,
-                    hideIcons: ["guide"],
+                    hideIcons: ["guide","side-by-side","fullscreen","link","image"], //TODO compile simpleMDE with safe:// instead of http://
                     promptURLs:false
                                       }}
                   />
