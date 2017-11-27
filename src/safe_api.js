@@ -30,7 +30,7 @@ const APP = {
     vendor: 'Nice',
   },
   opts: { own_container: false },
-  containers: {    
+  containers: {
     _publicNames: [PERMISSIONS.READ],
   },
 };
@@ -81,8 +81,8 @@ export default class SafeApi {
         const keysLen = await window.safeMutableDataKeys.len(keysHandle);
         // If there is no Public ID return empty list
         if (keysLen === 0) {
-          return resolve([]); // LIVE : toggle this when live on Safe
-          //return resolve(["johny","mary","paul"]); // LIVE : toggle this when live on Safe
+          //return resolve([]); // LIVE : toggle this when live on Safe
+          return resolve(["johny","mary","paul"]); // LIVE : toggle this when live on Safe
         }
         const publicNames = [];
         // get all keys from the conatiner.
@@ -161,7 +161,6 @@ export default class SafeApi {
         await window.safeMutableDataPermissionsSet.setAllow(permSet, PERMISSIONS.INSERT  ); // ???
         // setting the handle as null, anyone can perform the Insert and update operation
         await window.safeMutableData.setUserPermissions(this.topicsMutableData, null, permSet, 1);
-
         resolve();
       } catch (err) {
         reject(err);
@@ -300,7 +299,7 @@ export default class SafeApi {
   *     a special entry for the list of likes : an array of ( reply ID - user ID ) pairs
   *     one entry for each reply, with : author, date, message, ID
   */
-  setupReplies(topicname) {
+  setupReplies(topicname,date) {
     return new Promise(async (resolve, reject) => {
       try {
 
@@ -317,7 +316,7 @@ export default class SafeApi {
         this.repliesMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
         await window.safeMutableData.quickSetup(
           this.repliesMutableData,
-          { likes: "[0,0]" },
+          { likes: "[0,0]" , last_modified: date },
           `${topicname} - Simple Forum`,
           `replies for the topic ${topicname} is saved in this MutableData`,
         );
@@ -341,7 +340,7 @@ export default class SafeApi {
   * Post reply for the topic
   * @param {ReplyModel} replyModel
   */
-  postReply(topicname,replyModel) {
+  postReply(topicname, replyModel) {
     return new Promise(async (resolve, reject) => {
       try {
         console.log ( 'postreplies');
@@ -350,13 +349,15 @@ export default class SafeApi {
         var repliesMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
 
         const entriesHandle = await window.safeMutableData.getEntries(repliesMutableData);
-        const mutationHandle = await window.safeMutableDataEntries.mutate(entriesHandle);
+        var mutationHandle = await window.safeMutableDataEntries.mutate(entriesHandle);
         await window.safeMutableDataMutation.insert(mutationHandle, replyModel.id, JSON.stringify(replyModel));
         // Without calling applyEntriesMutation the changes wont we saved in the network
         await window.safeMutableData.applyEntriesMutation(repliesMutableData, mutationHandle);
+
         window.safeMutableDataMutation.free(mutationHandle);
         window.safeMutableDataEntries.free(entriesHandle);
         window.safeMutableDataEntries.free(repliesMutableData);
+
         this.replies = await this.listReplies(topicname);
         resolve(this.replies);
       } catch (err) {
@@ -407,7 +408,7 @@ export default class SafeApi {
           return resolve(this.replies);
         }
         await window.safeMutableDataEntries.forEach(entriesHandle, (key, value) => { // do not treat the 'like' entry as a reply
-          if (value.buf.length === 0 || key == "likes") {
+          if (value.buf.length === 0 || key == "likes" || key =="last_modified" ) {
             return;
           }
           const jsonObj = JSON.parse(value.buf.toString());
@@ -488,7 +489,8 @@ export default class SafeApi {
             return;
           }
           const jsonObj = JSON.parse(value.buf.toString());
-          this.topics.push(new TopicModel(jsonObj.author, jsonObj.title, jsonObj.date, jsonObj.id));
+          //console.log ( " listTopics : key , json ", key.toString(), value.buf.toString() );//debug
+          this.topics.push(new TopicModel(jsonObj.author, jsonObj.title, jsonObj.date, jsonObj.id ));
         });
         resolve(this.topics);
       } catch (err) {
@@ -519,6 +521,107 @@ export default class SafeApi {
       }
     });
   }
+
+  /**
+  * Update last_modified for a topic :
+  * Publish new topic
+  */
+  updateLastMod (topicname , date )  {
+    return new Promise(async (resolve) => {
+      try {
+
+        console.log('updatelastmod: topicname : ', topicname ); //debug
+
+        // are we already initialased ?
+        // are we already authorized ?
+        // are we already connected ?
+        var theapp = sessionStorage.getItem("app");
+        var theauth = sessionStorage.getItem("auth");
+
+        if ( !theapp || !theauth ) {
+
+        this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
+        const uri = await window.safeApp.authorise(this.app, APP.containers, APP.opts);
+        var auth = await window.safeApp.connectAuthorised(this.app, uri);
+        sessionStorage.setItem("app", this.app );
+        sessionStorage.setItem("auth", auth );
+        //console.log ( sessionStorage.getItem("app") , ' - > sessionStorage app ', );//debug
+        //window.app = this.app;
+      } else {
+        this.app = sessionStorage.getItem("app");
+        //console.log ( 'sessionStorage app - > ',this.app );//debug
+      }
+
+                const hashedName = await window.safeCrypto.sha3Hash(this.app, HOSTNAME+topicname );
+                var topicMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG );
+                const entriesHandle = await window.safeMutableData.getEntries( topicMutableData);
+                const mutationHandle = await window.safeMutableDataEntries.mutate(entriesHandle);
+
+                const lastmod = await window.safeMutableData.get(topicMutableData, 'last_modified');
+                var oldlastmod = uintToString(lastmod.buf);
+                console.log('updatelastmod: ', oldlastmod ); //debug
+
+                const mutation = await window.safeMutableDataMutation.update(mutationHandle, 'last_modified', date+"", lastmod.version + 1);
+                await window.safeMutableData.applyEntriesMutation(topicMutableData, mutationHandle);
+
+                // TODO free everything !!!!
+
+                return resolve( );
+                }
+
+               catch (err) {
+                console.warn('updatelastmod: ', err);
+                resolve();
+              }
+            });
+        }
+
+        /**
+        * get last_modified for a topic :
+        */
+        getLastMod (topicname )  {
+          return new Promise(async (resolve) => {
+            try {
+
+              // are we already initialased ?
+              // are we already authorized ?
+              // are we already connected ?
+              var theapp = sessionStorage.getItem("app");
+
+              if ( !theapp ) {
+
+              this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
+              await window.safeApp.connect(this.app);
+              sessionStorage.setItem("app", this.app );
+
+              //console.log ( sessionStorage.getItem("app") , ' - > sessionStorage app ', ); //debug
+
+            } else {
+              this.app = sessionStorage.getItem("app");
+              //console.log ( 'sessionStorage app - > ',this.app );//debug
+            }
+
+                      const hashedName = await window.safeCrypto.sha3Hash(this.app, HOSTNAME+topicname );
+                      var topicMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG );
+                      const entriesHandle = await window.safeMutableData.getEntries( topicMutableData);
+                      const mutationHandle = await window.safeMutableDataEntries.mutate(entriesHandle);
+
+                      const lastmod = await window.safeMutableData.get(topicMutableData, 'last_modified');
+                      var oldlastmod = uintToString(lastmod.buf);
+                      var newdate = new Date(oldlastmod).toLocaleString();
+                      console.log('getlastmod: old date', oldlastmod ); //debug
+                      console.log('getlastmod: newdate ', newdate ); //debug
+
+
+                      return resolve( newdate );
+                      }
+
+                     catch (err) {
+                      console.warn('getlastmod: ', err);
+                      resolve();
+                    }
+                  });
+              }
 
 
   //
@@ -626,7 +729,7 @@ export default class SafeApi {
         //  console.log ("add likes : newlikes : ",newlikes); //debug
 
           const mutation = await window.safeMutableDataMutation.update(mutationHandle, 'likes', newlikes, thelikes.version + 1);
-          await window.safeMutableData.applyEntriesMutation(topicMutableData, mutationHandle);  // TODO ACCESS DENIED if not owner
+          await window.safeMutableData.applyEntriesMutation(topicMutableData, mutationHandle);
 
           return resolve( this.likes );
           }

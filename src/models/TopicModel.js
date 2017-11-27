@@ -13,13 +13,13 @@ const generateLikes = () => {
 
 export default class TopicModel {
   //constructor(title, author, op, date_created, last_modified, id = generateId()) {
-  constructor(author, title, date, op, likes = generateLikes(), id = generateId()) {
+  constructor(author, title, date, op, last_modified, likes = generateLikes(), id = generateId() ) {
     this.author = author;
     this.date = date;
     this.title = title;
     this.op = op;
     this.likes = likes;
     this.id = id;
-    // TODO last modified -> get the date of the last reply in the topic
+    this.last_modified = date;
   }
 }

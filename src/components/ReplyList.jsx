@@ -171,7 +171,7 @@ class ReplyList extends React.Component {
       return;
     }
     var thetopic = window.getParameterByName ( "t", window.location.search );
-
+     //TODO var thetopic ID = window.getParameterByName ( "id", window.location.search ); // --> pass the ID to 'addreply' so that we can update the topic 'last_modified'...
 
     store.addReply(thetopic,userId, this.newMessage);
     this.newMessage = '';

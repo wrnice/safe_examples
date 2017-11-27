@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { observer } from 'mobx-react';
 import PropTypes from 'prop-types';
 import constant from '../constants.js';
+import SafeApi from '../safe_api';
 
 @observer
 class Topic extends Component {
@@ -18,12 +19,21 @@ class Topic extends Component {
     );
   }
 
+
   // TODO last modified : time elapsed since last reply
-  // -> get last reply in the corresponding mutable, compare its date to the current date, express in minutes / hours / days / monthes / years
+  // either :/
+  //  store the last_modified date in the replies mutable : each topic has a topic.last_modified key
+  //  store the last_modified date in the topics mutable : insert a last_modified field in the json --> this would allow to use topic.last_modified
 
   render() {
     const { topic, isOwner } = this.props;
     const deleteLink = isOwner ? this.getDeleteLink() : null;
+    this.api = new SafeApi();
+    const lastmod = this.api.getLastMod(topic.title).then ( function (result ) {
+        var lastmod = result +"";
+        document.getElementById("lastmod"+topic.id).innerHTML=new Date(lastmod).toLocaleString();
+      });
+
     return (
 
       <div className="topics">
@@ -39,6 +49,11 @@ class Topic extends Component {
 
         </div>
 
+        <div  className="lastmod">
+          last modified :
+             <span id={"lastmod"+topic.id} className="date"></span>
+        </div>
+
 
 
         <div className="_opts">
@@ -50,6 +65,7 @@ class Topic extends Component {
       </div>
 
     );
+
   }
 }
 

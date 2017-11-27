@@ -26,8 +26,10 @@ export default class TopicListModel {
 
   sortTopics(topics) {
     topics.sort((a, b) => {
-      // const date1 = new Date(a.last_modified);
-      // const date2 = new Date(b.last_modified);
+      // TODO if we want to display topics in the last_modified order, we have to work from a last_modified key in the replies mutable instead
+      // OR sort another way....
+      //const date1 = new Date(a.last_modified);
+      //const date2 = new Date(b.last_modified);
       const date1 = new Date(a.date);
       const date2 = new Date(b.date);
       if (date1 > date2) return -1;
@@ -75,11 +77,13 @@ export default class TopicListModel {
     try {
       this.isLoading = true;
       const date = new Date().toUTCString();
+      const last_modified = date;
 
-      const topics = await this.api.publishTopic(new TopicModel(author, title, date, op));
+      const topics = await this.api.publishTopic(new TopicModel(author, title, date, op ));
 
       // create a new mutable for the replies to this topic
-      const newreply = await this.api.setupReplies(title);
+      const newreply = await this.api.setupReplies(title,date);
+
       // , and put the original post as a fisrt reply
       const replies = await this.api.postReply(title,new ReplyModel(author, op, date ));
 
