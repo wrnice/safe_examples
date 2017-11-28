@@ -8,9 +8,13 @@ import TopicListModel from './models/TopicListModel';
 
 import './style/style.css';
 
-// TODO css, likes, ignore, ignorelist, last modified
+// TODO css, ignore, ignorelist
+// TODO sort topics by last modified -> needs access to each topic's 'last modified ' key from the topic list page
+// -> this will need rewriting the topics structure
+// -> validate inputs before submit : prevent nasty code injection
+// TODO use topics ID hash instead of title hash as replies mutable name
 // TODO make it work across tabs : localstorage ?
-// TODO messages should be contentEditable instead of textareas
+// TODO find a workaround for SimpleMDE 'prompt' for images, not supported in electron
 // TODO better css for 'no such topic'
 
 const { DEFAULT_ID, ERROR_MSG, ANONYMOUS, FORUMNAME } = Constants;
@@ -77,6 +81,49 @@ const renderReplies = (topic,id) => {
   );
 };
 
+const howlong = ( date_old )  => {
+
+  var elapsed = "";
+  var date_now =  new Date();
+  var monthNames = [
+  "Jan", "Feb", "Mar",
+  "Apr", "May", "Jun", "Jul",
+  "Aug", "Sep", "Oct",
+  "Nov", "Dec"
+  ];
+
+  var day = date_old.getDate();
+  var monthIndex = date_old.getMonth();
+  var year = date_old.getFullYear();
+
+  // get total seconds between the times
+  var delta = Math.abs(date_old - date_now) / 1000;
+
+  // calculate (and subtract) whole days
+  var days = Math.floor(delta / 86400);
+  delta -= days * 86400;
+
+  // calculate (and subtract) whole hours
+  var hours = Math.floor(delta / 3600) % 24;
+  delta -= hours * 3600;
+
+  // calculate (and subtract) whole minutes
+  var minutes = Math.floor(delta / 60) % 60;
+  delta -= minutes * 60;
+
+  // what's left is seconds
+  var seconds = delta % 60;  // in theory the modulus is not required
+
+  if ( days > 365 ) { elapsed =  monthNames[monthIndex] + ' ' + year.slice(-2); }
+  else if ( days > 30 ) { elapsed =  day + ' ' + monthNames[monthIndex] }
+  else if ( days !=0 ) { elapsed = days.toString()+'d'; }
+  else if ( hours !=0 ) { elapsed = hours.toString()+'h'; }
+  else if ( minutes !=0 ) { elapsed = minutes.toString()+'m'; }
+  else { elapsed = 'now'; }
+
+  return elapsed;
+}
+
 
 
 
@@ -86,3 +133,4 @@ window.safeReplies = renderReplies;
 window.getParameterByName = getParameterByName;
 window.topicUrl = topicUrl;
 window.uintToString = uintToString;
+window.howlong = howlong;

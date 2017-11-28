@@ -114,6 +114,7 @@ class TopicList extends React.Component {
 
         <div className="messages" >
           <div className="replies-count">{store.topics.length} Topic(s)</div>
+          <div className="activity">Activity</div>
           <ul className="topiclist">
             {store.topics.map(topic => (
               <Topic topic={topic} isOwner={store.isOwner} deleteTopic={store.deleteTopic} key={topic.id} />

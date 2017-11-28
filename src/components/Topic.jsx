@@ -19,11 +19,11 @@ class Topic extends Component {
     );
   }
 
-
   // TODO last modified : time elapsed since last reply
-  // either :/
+  // either :
   //  store the last_modified date in the replies mutable : each topic has a topic.last_modified key
   //  store the last_modified date in the topics mutable : insert a last_modified field in the json --> this would allow to use topic.last_modified
+  // TODO : how many replies in the topic
 
   render() {
     const { topic, isOwner } = this.props;
@@ -31,7 +31,9 @@ class Topic extends Component {
     this.api = new SafeApi();
     const lastmod = this.api.getLastMod(topic.title).then ( function (result ) {
         var lastmod = result +"";
-        document.getElementById("lastmod"+topic.id).innerHTML=new Date(lastmod).toLocaleString();
+        var elapsed = howlong ( new Date( lastmod));
+        //document.getElementById("lastmod"+topic.id).innerHTML=new Date(lastmod).toLocaleString();
+        document.getElementById("lastmod"+topic.id).innerHTML=' ' +elapsed;
       });
 
     return (
@@ -41,6 +43,10 @@ class Topic extends Component {
           <div className="topiclink">{topic.title}</div>
         </a>
 
+        <div  className="lastmod">
+             <span id={"lastmod"+topic.id} className="date"></span>
+        </div>
+
         <div className="topicdescr">
           Published
             <span className="date">{' '+new Date(topic.date).toLocaleString()+' '}</span>
@@ -49,10 +55,7 @@ class Topic extends Component {
 
         </div>
 
-        <div  className="lastmod">
-          last modified :
-             <span id={"lastmod"+topic.id} className="date"></span>
-        </div>
+
 
 
 
