@@ -71,13 +71,18 @@ class Reply extends Component {
       if ( howmanylikes != "0"  ) { oneheart.style.color="#fa6c8d";} ;
     });
 
+    var elapsed = howlong (  new Date(reply.date) );
+
+    //<span className="replydate">{' '+new Date(reply.date).toLocaleString()+' '}</span>
+
     return (
 
       <div className="reply">
       <div className="replydescr">
          <span id={"author"+reply.id} className="user">{' '+reply.name+' :'}</span>
-          <span className="replydate">{' '+new Date(reply.date).toLocaleString()+' '}</span>
-      </div>      
+
+          <span className="replydate">{' '+elapsed+' '}</span>
+      </div>
       <div className="message" dangerouslySetInnerHTML={{ __html: snarkdown(reply.message) }}></div>
         <div className="replybuttons">
           <div className="likes">
