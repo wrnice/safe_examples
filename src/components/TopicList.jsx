@@ -12,6 +12,7 @@ import SimpleMDE from 'react-simplemde-editor';
 
 @observer
 class TopicList extends React.Component {
+  // @observable timer;
   @observable newText = '';
   @observable newTitle = '';
   @observable userID = sessionStorage.getItem("userID") || constant.ANONYMOUS;
@@ -27,11 +28,19 @@ class TopicList extends React.Component {
     window.scrollTo(0, document.body.scrollHeight);
     this.setState(
       {
-
         isLoading: false,
       });
-
+      // let timer = setInterval(this.tick, 10000);
+      // this.setState({timer});
   }
+
+  // componentWillUnmount() {
+  //     this.clearInterval(this.state.timer);
+  //   }
+  //
+  //   tick() {
+  //       console.log ( 'tick');
+  //     }
 
   getNetworkComponent() {
     const { isNwConnected, isNwConnecting, reconnect } = this.props.store;
@@ -114,7 +123,8 @@ class TopicList extends React.Component {
 
         <div className="messages" >
           <div className="replies-count">{store.topics.length} Topic(s)</div>
-          <div className="activity">Activity</div>
+          <div className="lastmod">Activity</div>
+          <div className="repliescount">Replies</div>
           <ul className="topiclist">
             {store.topics.map(topic => (
               <Topic topic={topic} isOwner={store.isOwner} deleteTopic={store.deleteTopic} key={topic.id} />
@@ -147,7 +157,7 @@ class TopicList extends React.Component {
               required="required"
                 options={{
                   autoDownloadFontAwesome:false,
-                  autofocus: true,
+                  autofocus: false,
                   spellChecker: false,
                   hideIcons: ["guide","side-by-side","fullscreen","link","image"], //TODO compile simpleMDE with safe:// instead of http://
                   promptURLs:false

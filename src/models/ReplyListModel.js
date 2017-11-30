@@ -75,7 +75,8 @@ export default class ReplyListModel {
       this.isLoading = true;
       const date = new Date().toUTCString();
       const replies = await this.api.postReply(topic ,new ReplyModel(name, message, date));
-      const updatelastmod = await this.api.updateLastMod ( topic , date ); 
+      const updatelastmod = await this.api.updateLastMod ( topic , date );
+
       this.replies = this.sortReplies(replies);
       this.isLoading = false;
     } catch (err) {

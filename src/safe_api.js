@@ -8,6 +8,7 @@ const {
   PERMISSIONS,
   PUBLIC_NAMES_CONTAINER,
   HOSTNAME,
+  FORUMNAME
 } = Constants;
 
 // Unique TYPE_TAG for refering the MutableData. Number can be anything above the reserved rage (0-15000)
@@ -149,6 +150,7 @@ export default class SafeApi {
         }
         const hashedName = await window.safeCrypto.sha3Hash(this.app, this.TOPICS_MD_NAME);
         this.topicsMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
+
         await window.safeMutableData.quickSetup(
           this.topicsMutableData,
           {},
@@ -161,6 +163,9 @@ export default class SafeApi {
         await window.safeMutableDataPermissionsSet.setAllow(permSet, PERMISSIONS.INSERT  ); // ???
         // setting the handle as null, anyone can perform the Insert and update operation
         await window.safeMutableData.setUserPermissions(this.topicsMutableData, null, permSet, 1);
+        await window.safeMutableDataPermissionsSet.setAllow(permSet, PERMISSIONS.UPDATE);
+        // setting the handle as null, anyone can perform the Insert operation
+        await window.safeMutableData.setUserPermissions(this.repliesMutableData, null, permSet, 2);
         resolve();
       } catch (err) {
         reject(err);
@@ -204,6 +209,7 @@ export default class SafeApi {
         // await window.safeApp.connectAuthorised(this.app, uri);
         // Compute the MutableData name
         const hashedName = await window.safeCrypto.sha3Hash(this.app, this.TOPICS_MD_NAME);
+
         // Create the handle for the MutableData
         this.topicsMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
         resolve();
@@ -282,8 +288,8 @@ export default class SafeApi {
 
         const publicNames = await this.getPublicNames();
         const currPublicID = hostName.split(DOT).slice(1).join(DOT);
-        resolve(publicNames.indexOf(currPublicID) > -1); // LIVE : uncomment this !!
-        //resolve(true); // LIVE : comment this !!
+        //resolve(publicNames.indexOf(currPublicID) > -1); // LIVE : uncomment this !!
+        resolve(true); // LIVE : comment this !!
       } catch (err) {
         resolve(false);
       }
@@ -457,9 +463,11 @@ export default class SafeApi {
     return new Promise(async (resolve, reject) => {
       try {
 
+        const topicID = await window.safeCrypto.sha3Hash(this.app, HOSTNAME+topicModel.title );
+
         const entriesHandle = await window.safeMutableData.getEntries(this.topicsMutableData);
         const mutationHandle = await window.safeMutableDataEntries.mutate(entriesHandle);
-        await window.safeMutableDataMutation.insert(mutationHandle, topicModel.id, JSON.stringify(topicModel));
+        await window.safeMutableDataMutation.insert(mutationHandle, topicID , JSON.stringify(topicModel));
         // Without calling applyEntriesMutation the changes wont we saved in the network
         await window.safeMutableData.applyEntriesMutation(this.topicsMutableData, mutationHandle);
         window.safeMutableDataMutation.free(mutationHandle);
@@ -478,6 +486,9 @@ export default class SafeApi {
   listTopics() {
     return new Promise(async (resolve) => {
       try {
+
+        console.log ( 'listTopics : this.topicsMutableData : ' , this.topicsMutableData ); // debug
+
         const entriesHandle = await window.safeMutableData.getEntries(this.topicsMutableData);
         const len = await window.safeMutableDataEntries.len(entriesHandle);
         this.topics = [];
@@ -490,7 +501,15 @@ export default class SafeApi {
           }
           const jsonObj = JSON.parse(value.buf.toString());
           //console.log ( " listTopics : key , json ", key.toString(), value.buf.toString() );//debug
-          this.topics.push(new TopicModel(jsonObj.author, jsonObj.title, jsonObj.date, jsonObj.id ));
+          //
+          this.topics.push(new TopicModel(
+            jsonObj.author,
+            jsonObj.title,
+            jsonObj.date,
+            jsonObj.op,
+            jsonObj.lastmod ,
+            jsonObj.repliescount,
+            jsonObj.category ));
         });
         resolve(this.topics);
       } catch (err) {
@@ -530,47 +549,68 @@ export default class SafeApi {
     return new Promise(async (resolve) => {
       try {
 
-        console.log('updatelastmod: topicname : ', topicname ); //debug
+        //console.log('updatelastmod: topicname : ', topicname ); //debug
 
+        // Initialising the app using the App info which requests for _publicNames container
         // are we already initialased ?
         // are we already authorized ?
         // are we already connected ?
         var theapp = sessionStorage.getItem("app");
         var theauth = sessionStorage.getItem("auth");
 
-        if ( !theapp || !theauth ) {
+        if ( !theapp  ) {
+          this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
+          sessionStorage.setItem("app", this.app );
+          //console.log ( "setup : storing " , sessionStorage.getItem("app") , ' - > sessionStorage app ', );//debug
+        } else {
+          this.app = sessionStorage.getItem("app");
+          //console.log ( "setup : fetching " , 'sessionStorage app - > ',this.app );//debug
+        }
 
-        this.app = await window.safeApp.initialise(APP.info, this.nwStateCb);
+        if ( !theauth  ) {
         const uri = await window.safeApp.authorise(this.app, APP.containers, APP.opts);
         var auth = await window.safeApp.connectAuthorised(this.app, uri);
-        sessionStorage.setItem("app", this.app );
+
         sessionStorage.setItem("auth", auth );
-        //console.log ( sessionStorage.getItem("app") , ' - > sessionStorage app ', );//debug
-        //window.app = this.app;
-      } else {
-        this.app = sessionStorage.getItem("app");
-        //console.log ( 'sessionStorage app - > ',this.app );//debug
-      }
+        }
 
-                const hashedName = await window.safeCrypto.sha3Hash(this.app, HOSTNAME+topicname );
-                var topicMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG );
-                const entriesHandle = await window.safeMutableData.getEntries( topicMutableData);
-                const mutationHandle = await window.safeMutableDataEntries.mutate(entriesHandle);
+        const topicMdName = `${hostName}-${FORUMNAME}`;
 
-                const lastmod = await window.safeMutableData.get(topicMutableData, 'last_modified');
-                var oldlastmod = uintToString(lastmod.buf);
-                console.log('updatelastmod: ', oldlastmod ); //debug
+        // Compute the MutableData name
+        const hashedName = await window.safeCrypto.sha3Hash(this.app, topicMdName);
 
-                const mutation = await window.safeMutableDataMutation.update(mutationHandle, 'last_modified', date+"", lastmod.version + 1);
-                await window.safeMutableData.applyEntriesMutation(topicMutableData, mutationHandle);
+        // Create the handle for the MutableData
+        const topicsMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
+        const entriesHandle = await window.safeMutableData.getEntries( topicsMutableData );
 
-                // TODO free everything !!!!
+        const mutationHandle = await window.safeMutableDataEntries.mutate( entriesHandle);
+
+        // get the topic json string , extract 'lastmod'
+        // replace it by current date : date
+
+        const topicID = await window.safeCrypto.sha3Hash(this.app, HOSTNAME+topicname );
+
+
+            var topicJSON = await window.safeMutableData.get( topicsMutableData, topicID );
+
+            const jsonObj = JSON.parse(topicJSON.buf.toString());
+
+            jsonObj.lastmod = date;
+            jsonObj.repliescount += 1;
+
+            const updatedTopic= JSON.stringify(jsonObj);
+
+            const mutation = await window.safeMutableDataMutation.update(mutationHandle, topicID , updatedTopic , topicJSON.version + 1);
+            await window.safeMutableData.applyEntriesMutation( topicsMutableData, mutationHandle);
+
+
+            // TODO free everything !!!!
 
                 return resolve( );
                 }
 
                catch (err) {
-                console.warn('updatelastmod: ', err);
+                console.warn('updatelastmod : ', err);
                 resolve();
               }
             });
@@ -609,9 +649,6 @@ export default class SafeApi {
                       const lastmod = await window.safeMutableData.get(topicMutableData, 'last_modified');
                       var oldlastmod = uintToString(lastmod.buf);
                       var newdate = new Date(oldlastmod).toLocaleString();
-                      console.log('getlastmod: old date', oldlastmod ); //debug
-                      console.log('getlastmod: newdate ', newdate ); //debug
-
 
                       return resolve( newdate );
                       }
