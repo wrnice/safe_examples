@@ -1,5 +1,5 @@
 export default {
-  FORUMNAME: 'SafeSimpleForumV1',
+  FORUMNAME: 'SafeSimpleForumV1.19',  
   ANONYMOUS: 'Anonymous',
   DEFAULT_ID: 'topics',
   PUBLIC_NAMES_CONTAINER: '_publicNames',

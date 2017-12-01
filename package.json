@@ -47,7 +47,9 @@
     "mobx-react-devtools": "^4.2.11",
     "prop-types": "^15.6.0",
     "react": "^15.1.0",
-    "react-dom": "^15.1.0"
+    "react-dom": "^15.1.0",
+    "react-simplemde-editor": "^3.6.11",
+    "snarkdown": "^1.2.2"
   },
   "main": "index.js"
 }

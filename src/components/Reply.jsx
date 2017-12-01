@@ -6,15 +6,17 @@ import PropTypes from 'prop-types';
 import SafeApi from '../safe_api';
 import constant from '../constants';
 
+import snarkdown from 'snarkdown';
+
 @observer
 class Reply extends Component {
-  getDeleteLink() {
+  getDeleteLink(topicname) {
     const { reply, deleteReply } = this.props;
     return (
       <div className="_opt">
         <button
           className="deleteReply"
-          onClick={() => { deleteReply(reply); }}
+          onClick={() => { deleteReply(topicname,reply); }}
         >Delete
         </button>
       </div>
@@ -51,16 +53,15 @@ class Reply extends Component {
 
   render() {
     const { reply, isOwner } = this.props;
-    const deleteLink = isOwner ? this.getDeleteLink() : null;
-
-    var thetopic = window.getParameterByName ( "t", window.location.search );
+    const thetopic = window.getParameterByName ( "t", window.location.search );
+    const deleteLink = isOwner ? this.getDeleteLink(thetopic) : null;
 
     this.api = new SafeApi();
 
     var getlikes = this.api.getlikes(thetopic).then( function(result)  {
       var thelikes = result +"";
       // now find how many pairs contain the id
-      var re = new RegExp(reply.id+"", "g");
+      var re = new RegExp(reply.id+"", "g"); //should be hashed
       var howmanylikes = ( thelikes.match(re) || []).length;
 
       //console.log ( 'reply : ', howmanylikes );//debug
@@ -69,23 +70,28 @@ class Reply extends Component {
       if ( howmanylikes != "0"  ) { oneheart.style.color="#fa6c8d";} ;
     });
 
+    var elapsed = howlong (  new Date(reply.date) );
+
+    //<span className="replydate">{' '+new Date(reply.date).toLocaleString()+' '}</span>
+
     return (
 
       <div className="reply">
       <div className="replydescr">
          <span id={"author"+reply.id} className="user">{' '+reply.name+' :'}</span>
-          <span className="replydate">{' '+new Date(reply.date).toLocaleString()+' '}</span>
-      </div>
 
-      <div className="message">{reply.message}</div>
+          <span className="replydate">{' '+elapsed+' '}</span>
+      </div>
+      <div className="message" dangerouslySetInnerHTML={{ __html: snarkdown(reply.message) }}></div>
         <div className="replybuttons">
-          <div className="likes">
-            <span className="howmanylikes" id={reply.id}></span> likes <span id={"heart"+reply.id} className ="heart" onClick={ () => this.heartButtonPressed(thetopic,reply.id) } title="soon!"></span>
-          </div>
+          <span className="likes">
+            <span className="howmanylikes" id={reply.id}></span> likes <span id={"heart"+reply.id} className ="heart" onClick={ () => this.heartButtonPressed(thetopic,reply.id) } ></span>
+          </span>
+          <span className="_opts">
+            {deleteLink}
+          </span>
         </div>
-        <div className="_opts">
-          {deleteLink}
-        </div>
+
 
       </div>
 
@@ -111,7 +117,7 @@ class Reply extends Component {
     var likes = result + "";
     var userId = document.getElementById('userID').value;
     //console.log ( 'heartbuttonpressed : likes : ', likes ); //debug
-    var alreadyLiked = likes.includes(userId+','+replyId);
+    var alreadyLiked = likes.includes('['+userId+','+replyId); // TODO should be hashed
     var selflike = document.getElementById("author"+replyId).innerHTML.includes(userId);
 
     if ( userId == constant.ANONYMOUS ) { console.log ( "anonymous can't like !");
@@ -122,9 +128,9 @@ class Reply extends Component {
       // insert userID,replyID in the likes mutable key
       var api = new SafeApi();
       var thetopic = window.getParameterByName ( "t", window.location.search );
-      var addlike = api.addLike ( thetopic , replyId, userId ).then( function()  {
+      var addlike = api.addLike ( thetopic , replyId, userId ).then( function()  { // TODO should be hashed
       // increment the like count
-      var re = new RegExp(replyId, "g");
+      var re = new RegExp(replyId, "g"); // TODO should be hashed
       var newlikes = ( likes.match(re) || [] ).length +1;
       document.getElementById(replyId).innerHTML=newlikes;
       //color the heart :

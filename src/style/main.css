@@ -23,7 +23,7 @@ margin-right: 15px;
 
 .message {
   margin-top: 20px;
-
+  margin-right: 5%;
 }
 
 header {
@@ -41,7 +41,18 @@ header {
 
 .footerform {
   border-top: 1px solid #aaa;
-	height:350px;
+	height:390px;
+	width: 100%;
+	position:fixed;
+	bottom: 0;
+	background: #eee;
+  padding-left: 48px;
+  padding-top: 12px;
+}
+
+.topicfooterform {
+  border-top: 1px solid #aaa;
+	height:430px;
 	width: 100%;
 	position:fixed;
 	bottom: 0;
@@ -54,9 +65,7 @@ header {
     margin: 12px 0 0 0;
   }
 
-.reply-msg {
-  margin: 8px;
-}
+
 
 .submit-btn {
   margin: 8px;
@@ -166,10 +175,11 @@ padding: 10px 0 10px 0;
 }
 .reply-msg {
   width: 95%;
-  height: 190px;
+  height: 300px;
   margin: 16px 0 0 0;
   background-color: #fff;
 }
+
 
 .reply-title {
   width : 300px;
@@ -247,6 +257,13 @@ padding: 10px 0 10px 0;
   .replydate {
     font-size: 14px;
     position: absolute;
+    padding-right:20px;
+    right: 5%;
+  }
+
+  .lastmod {
+    float: left;
+    font-size: 14px;
     padding-right:20px;
     right: 5%;
   }
