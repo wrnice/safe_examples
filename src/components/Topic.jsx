@@ -9,7 +9,7 @@ class Topic extends Component {
   getDeleteLink() {
     const { topic, deleteTopic } = this.props;
     return (
-      <div className="_opt">
+      <div >
         <button
           className="deleteReply"
           onClick={() => { deleteTopic(topic); }}
@@ -51,18 +51,10 @@ class Topic extends Component {
             <span className="date">{' '+new Date(topic.date).toLocaleString()+' '}</span>
             by
             <span className="user">{' '+topic.author+' '}</span>
-
+              <span className="_opts">
+                {deleteLink}
+              </span>
         </div>
-
-
-
-
-
-        <div className="_opts">
-          {deleteLink}
-        </div>
-
-
 
       </div>
 

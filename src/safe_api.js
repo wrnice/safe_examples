@@ -437,7 +437,7 @@ export default class SafeApi {
   * Delete reply for the topic
   * @param {any} replyModel
   */
-  deleteReply(replyModel) {
+  deleteReply(topicname,replyModel) {
     return new Promise(async (resolve, reject) => {
       try {
         const entriesHandle = await window.safeMutableData.getEntries(this.repliesMutableData);
@@ -447,6 +447,9 @@ export default class SafeApi {
         await window.safeMutableData.applyEntriesMutation(this.repliesMutableData, mutationHandle);
         window.safeMutableDataMutation.free(mutationHandle);
         window.safeMutableDataEntries.free(entriesHandle);
+
+        window.location.reload(false);  // sort of a dirty workaround to the error : topic.sort is not a function
+
         this.replies = await this.listReplies(topicname);
         resolve(this.replies);
       } catch (err) {
@@ -487,7 +490,7 @@ export default class SafeApi {
     return new Promise(async (resolve) => {
       try {
 
-        console.log ( 'listTopics : this.topicsMutableData : ' , this.topicsMutableData ); // debug
+        //console.log ( 'listTopics : this.topicsMutableData : ' , this.topicsMutableData ); // debug
 
         const entriesHandle = await window.safeMutableData.getEntries(this.topicsMutableData);
         const len = await window.safeMutableDataEntries.len(entriesHandle);
@@ -528,11 +531,17 @@ export default class SafeApi {
       try {
         const entriesHandle = await window.safeMutableData.getEntries(this.topicsMutableData);
         const mutationHandle = await window.safeMutableDataEntries.mutate(entriesHandle);
-        const data = await window.safeMutableData.get(this.topicsMutableData, topicModel.id);
-        await window.safeMutableDataMutation.remove(mutationHandle, topicModel.id, data.version + 1);
+
+        const topicID = await window.safeCrypto.sha3Hash(this.app, HOSTNAME+topicModel.title );
+
+        const data = await window.safeMutableData.get(this.topicsMutableData, topicID );
+        await window.safeMutableDataMutation.remove(mutationHandle, topicID , data.version + 1);
         await window.safeMutableData.applyEntriesMutation(this.topicsMutableData, mutationHandle);
         window.safeMutableDataMutation.free(mutationHandle);
         window.safeMutableDataEntries.free(entriesHandle);
+
+        window.location.reload(false);  // sort of a dirty workaround to the error : topic.sort is not a function
+
         this.topics = await this.listTopics();
         resolve(this.topics);
       } catch (err) {

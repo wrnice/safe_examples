@@ -10,13 +10,13 @@ import snarkdown from 'snarkdown';
 
 @observer
 class Reply extends Component {
-  getDeleteLink() {
+  getDeleteLink(topicname) {
     const { reply, deleteReply } = this.props;
     return (
       <div className="_opt">
         <button
           className="deleteReply"
-          onClick={() => { deleteReply(reply); }}
+          onClick={() => { deleteReply(topicname,reply); }}
         >Delete
         </button>
       </div>
@@ -53,9 +53,8 @@ class Reply extends Component {
 
   render() {
     const { reply, isOwner } = this.props;
-    const deleteLink = isOwner ? this.getDeleteLink() : null;
-
-    var thetopic = window.getParameterByName ( "t", window.location.search );
+    const thetopic = window.getParameterByName ( "t", window.location.search );
+    const deleteLink = isOwner ? this.getDeleteLink(thetopic) : null;
 
     this.api = new SafeApi();
 
@@ -85,13 +84,14 @@ class Reply extends Component {
       </div>
       <div className="message" dangerouslySetInnerHTML={{ __html: snarkdown(reply.message) }}></div>
         <div className="replybuttons">
-          <div className="likes">
+          <span className="likes">
             <span className="howmanylikes" id={reply.id}></span> likes <span id={"heart"+reply.id} className ="heart" onClick={ () => this.heartButtonPressed(thetopic,reply.id) } ></span>
-          </div>
+          </span>
+          <span className="_opts">
+            {deleteLink}
+          </span>
         </div>
-        <div className="_opts">
-          {deleteLink}
-        </div>
+
 
       </div>
 
