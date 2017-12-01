@@ -1,11 +1,11 @@
 export default {
-  //FORUMNAME: 'SafeSimpleForumV1.16',  // LIVE : CHANGE THIS !!
-  FORUMNAME: 'SafeSimpleForumV1.18test6',
+  FORUMNAME: 'SafeSimpleForumV1.20',  // LIVE : CHANGE THIS !!
+  //FORUMNAME: 'SafeSimpleForumV1.18test6',
   ANONYMOUS: 'Anonymous',
   DEFAULT_ID: 'topics',
   PUBLIC_NAMES_CONTAINER: '_publicNames',
-  //HOSTNAME: 'safe://simple-forum', // LIVE : CHANGE THIS !!
-  HOSTNAME: 'localhost://p:3008',
+  HOSTNAME: 'safe://simple-forum', // LIVE : CHANGE THIS !!
+  //HOSTNAME: 'localhost://p:3008',
   NET_STATE: {
     INIT: 'Init',
     DISCONNECTED: 'Disconnected',

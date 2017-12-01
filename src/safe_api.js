@@ -82,8 +82,8 @@ export default class SafeApi {
         const keysLen = await window.safeMutableDataKeys.len(keysHandle);
         // If there is no Public ID return empty list
         if (keysLen === 0) {
-          //return resolve([]); // LIVE : toggle this when live on Safe
-          return resolve(["johny","mary","paul"]); // LIVE : toggle this when live on Safe
+          return resolve([]); // LIVE : toggle this when live on Safe
+          //return resolve(["johny","mary","paul"]); // LIVE : toggle this when live on Safe
         }
         const publicNames = [];
         // get all keys from the conatiner.
@@ -165,7 +165,7 @@ export default class SafeApi {
         await window.safeMutableData.setUserPermissions(this.topicsMutableData, null, permSet, 1);
         await window.safeMutableDataPermissionsSet.setAllow(permSet, PERMISSIONS.UPDATE);
         // setting the handle as null, anyone can perform the Insert operation
-        await window.safeMutableData.setUserPermissions(this.repliesMutableData, null, permSet, 2);
+        await window.safeMutableData.setUserPermissions(this.topicsMutableData, null, permSet, 2);
         resolve();
       } catch (err) {
         reject(err);
@@ -288,8 +288,8 @@ export default class SafeApi {
 
         const publicNames = await this.getPublicNames();
         const currPublicID = hostName.split(DOT).slice(1).join(DOT);
-        //resolve(publicNames.indexOf(currPublicID) > -1); // LIVE : uncomment this !!
-        resolve(true); // LIVE : comment this !!
+        resolve(publicNames.indexOf(currPublicID) > -1); // LIVE : uncomment this !!
+        //resolve(true); // LIVE : comment this !!
       } catch (err) {
         resolve(false);
       }
