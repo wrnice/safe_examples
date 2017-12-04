@@ -68,15 +68,15 @@ textarea {
 }
 
 ol, ul {
-  padding-left: 5px;
+  padding-left: 15px;
 }
 
 blockquote {
   font: 14px/22px normal helvetica, sans-serif;
   margin-top: 10px;
   margin-bottom: 10px;
-  margin-left: 20px;
-  padding-left: 15px;
+  margin-left: 15px;
+  padding-left: 10px;
   border-left: 3px solid #ccc;
   background-color: #f9f9f9;
 }

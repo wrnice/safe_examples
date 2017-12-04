@@ -8,7 +8,7 @@ import TopicListModel from './models/TopicListModel';
 
 import './style/style.css';
 
-// TODO css, ignore, ignorelist
+// TODO ignore, ignorelist, ban, ban list
 // TODO sort topics by last modified -> needs access to each topic's 'last modified ' key from the topic list page
 // -> this will need rewriting the topics structure
 // -> validate inputs before submit : prevent nasty code injection
@@ -16,6 +16,10 @@ import './style/style.css';
 // TODO make it work across tabs : localstorage ?
 // TODO find a workaround for SimpleMDE 'prompt' for images, not supported in electron
 // TODO better css for 'no such topic'
+// TODO editable replies
+// TODO better css for 'initializing topics'
+// TODO donate button
+// TODO CSS revamp and branding
 
 const { DEFAULT_ID, ERROR_MSG, ANONYMOUS, FORUMNAME } = Constants;
 const topicstore = new TopicListModel();
