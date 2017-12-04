@@ -1,6 +1,6 @@
 export default {
   //FORUMNAME: 'SafeSimpleForumV1.16',  // LIVE : CHANGE THIS !!
-  FORUMNAME: 'SafeSimpleForumV1.18test6',
+  FORUMNAME: 'SafeSimpleForumV1.22test1',
   ANONYMOUS: 'Anonymous',
   DEFAULT_ID: 'topics',
   PUBLIC_NAMES_CONTAINER: '_publicNames',
