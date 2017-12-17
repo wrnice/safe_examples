@@ -5,7 +5,7 @@ import { observer } from 'mobx-react';
 import Topic from './Topic';
 import constant from '../constants.js';
 
-import SimpleMDE from 'react-simplemde-editor';
+import SimpleMDE from 'safe-react-simplemde-editor';
 
 // TODO userId should survive on url change, new tab
 // TODO form inputs should all be validated before being sent
@@ -159,7 +159,7 @@ class TopicList extends React.Component {
                   autoDownloadFontAwesome:false,
                   autofocus: false,
                   spellChecker: false,
-                  hideIcons: ["guide","side-by-side","fullscreen","link","image"], //TODO compile simpleMDE with safe:// instead of http://
+                  hideIcons: ["guide","side-by-side","fullscreen"],
                   promptURLs:false // we need an implementation of 'prompt' in electron
                                     }}
                 />

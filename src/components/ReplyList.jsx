@@ -6,7 +6,7 @@ import Reply from './Reply';
 import constant from '../constants.js';
 import SafeApi from '../safe_api';
 
-import SimpleMDE from 'react-simplemde-editor';
+import SimpleMDE from 'safe-react-simplemde-editor';
 
 @observer
 class ReplyList extends React.Component {
@@ -150,7 +150,7 @@ class ReplyList extends React.Component {
                   options={{
                     autoDownloadFontAwesome:false,
                     spellChecker: false,
-                    hideIcons: ["guide","side-by-side","fullscreen","link","image"], //TODO compile simpleMDE with safe:// instead of http://
+                    hideIcons: ["guide","side-by-side","fullscreen"],
                     promptURLs:false
                                       }}
                   />
@@ -192,7 +192,7 @@ class ReplyList extends React.Component {
       return;
     }
     var thetopic = window.getParameterByName ( "t", window.location.search );
-    
+
     store.addReply(thetopic,userId, this.newMessage);
     this.newMessage = '';
     this.replyFormVisible = "hidden";
