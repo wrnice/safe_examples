@@ -37,11 +37,12 @@
     "eslint-plugin-react": "^7.4.0",
     "style-loader": "^0.19.0",
     "uglifyjs-webpack-plugin": "^1.0.0-beta.3",
-    "webpack": "^3.5.5",
+    "webpack": "^3.10.0",
     "webpack-dev-server": "^2.7.1"
   },
   "dependencies": {
     "body-parser": "^1.18.2",
+    "dialogs": "^1.1.20",
     "mobx": "^3.0.0",
     "mobx-react": "^4.1.0",
     "mobx-react-devtools": "^4.2.11",
@@ -49,6 +50,7 @@
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
     "react-simplemde-editor": "^3.6.11",
+    "smalltalk": "^2.5.1",
     "snarkdown": "^1.2.2"
   },
   "main": "index.js"

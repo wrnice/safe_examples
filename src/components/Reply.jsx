@@ -49,10 +49,11 @@ class Reply extends Component {
 
   }
 
-
-
   render() {
     const { reply, isOwner } = this.props;
+
+    console.log ( "reply: " , reply );
+
     const thetopic = window.getParameterByName ( "t", window.location.search );
     const deleteLink = isOwner ? this.getDeleteLink(thetopic) : null;
 

@@ -85,6 +85,9 @@ export default class TopicListModel {
       const newreply = await this.api.setupReplies(title,date);
 
       // , and put the original post as a fisrt reply
+
+      console.log ("add topic : add reply : author :",author);
+
       const replies = await this.api.postReply(title,new ReplyModel(author, op, date ));
 
       this.topics = this.sortTopics(topics);

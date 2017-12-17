@@ -160,7 +160,7 @@ class TopicList extends React.Component {
                   autofocus: false,
                   spellChecker: false,
                   hideIcons: ["guide","side-by-side","fullscreen","link","image"], //TODO compile simpleMDE with safe:// instead of http://
-                  promptURLs:false
+                  promptURLs:false // we need an implementation of 'prompt' in electron
                                     }}
                 />
 
