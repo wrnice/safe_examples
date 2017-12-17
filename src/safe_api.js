@@ -370,18 +370,18 @@ export default class SafeApi {
         }
 
         const keyArray = await window.safeMutableData.getKeys(this.repliesMutableData);
-        console.log('keys in the MutableData: ', keyArray );
+        // console.log('keys in the MutableData: ', keyArray ); //debug
 
-        await window.safeMutableDataEntries.forEach(entriesHandle, (k, value) => { // do not treat the 'like' entry as a reply
+        await window.safeMutableDataEntries.forEach(entriesHandle, (k, value) => {
 
-        var key ="";
-        for (var keys in k) {
-                  key += String.fromCharCode(k[keys] );
+          var key ="";
+          for (var keys in k) {
+                    key += String.fromCharCode(k[keys] );
           }
+          // console.log ( "listreplies : key : " , key  ); //debug
+          // console.log ( "listreplies : value : " , value.buf.toString()  ); //debug
 
-          console.log ( "listreplies : key : " , key  ); //debug
-          console.log ( "listreplies : value : " , value.buf.toString()  ); //debug
-
+          // do not treat the 'like' , 'metadata', 'last_modified' entries as a reply
           if ( value.buf.length === 0 || key.includes( "likes" ) || key.includes( "last_modified" ) || key.includes("metadata") ) {
             //console.log ( "skipped"); //debug
             return;
