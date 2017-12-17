@@ -289,6 +289,8 @@ export default class SafeApi {
 
         console.log ( "setup replies : topicname = " , topicname);
 
+        await this.authme ();
+
         const hashedName = await window.safeCrypto.sha3Hash(this.app, HOSTNAME+topicname );
         this.repliesMutableData = await window.safeMutableData.newPublic(this.app, hashedName, TYPE_TAG);
         await window.safeMutableData.quickSetup(
@@ -366,6 +368,10 @@ export default class SafeApi {
         if (len === 0) {
           return resolve(this.replies);
         }
+
+        const keyArray = await window.safeMutableData.getKeys(this.repliesMutableData);
+        console.log('keys in the MutableData: ', keyArray );
+
         await window.safeMutableDataEntries.forEach(entriesHandle, (k, value) => { // do not treat the 'like' entry as a reply
 
         var key ="";
@@ -376,8 +382,8 @@ export default class SafeApi {
           console.log ( "listreplies : key : " , key  ); //debug
           console.log ( "listreplies : value : " , value.buf.toString()  ); //debug
 
-          if ( value.buf.length === 0 || key == "likes" || key == "last_modified" || key.includes("metadata") ) {
-            console.log ( "skipped"); //debug
+          if ( value.buf.length === 0 || key.includes( "likes" ) || key.includes( "last_modified" ) || key.includes("metadata") ) {
+            //console.log ( "skipped"); //debug
             return;
           }
           const jsonObj = JSON.parse(value.buf.toString());
