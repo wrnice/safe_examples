@@ -129,9 +129,6 @@ const howlong = ( date_old )  => {
 }
 
 
-
-
-
 window.safeTopics = renderTopics; //globally accessible
 window.safeReplies = renderReplies;
 window.getParameterByName = getParameterByName;

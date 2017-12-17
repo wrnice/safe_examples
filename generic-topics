@@ -1,3 +1,7 @@
 Hello, this is a new version of a simple forum that works on Safe. You can login with your Safe public ID, publish topics, post replies and give likes. In the long term I plan to add ignore IDs, ignore lists, ban lists, markup language, image and media upload... Right now things are very rough and your data may very well end in oblivon. Have fun !
 
 The development of this forum takes a lot of time and dedication. If you think the future of this project can be of any value for you, if you are willing to help making Safe a reality by contributing to the rise of new applications, if you are a big company willing to sponsor an independant developper, or if you feel like paying me a beer, any BTC donations will be very appreciated on : 1Q2BGmwVxAeweG585xedxssGgxoru3DFYb. Thank you !
+
+Hello, this is a new version of a simple forum that works on the Safe Network.
+You can login with your Safe public ID, publish topics, post replies with basic markdown support, and give likes. In the long term I plan to add : ignore and ban lists, links, image and media upload...
+Right now things are very rough and your data may very well end in oblivon. Have fun !
