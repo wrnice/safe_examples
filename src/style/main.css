@@ -88,7 +88,7 @@ blockquote {
 
 .footerform {
   border-top: 1px solid #aaa;
-	height:390px;
+	height:480px;
 	width: 100%;
 	position:fixed;
 	bottom: 0;
@@ -99,7 +99,7 @@ blockquote {
 
 .topicfooterform {
   border-top: 1px solid #aaa;
-	height:430px;
+	height:530px;
 	width: 100%;
 	position:fixed;
 	bottom: 0;
