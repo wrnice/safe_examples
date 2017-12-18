@@ -4694,14 +4694,14 @@ safe-buffer@5.1.1, safe-buffer@^5.0.1, safe-buffer@^5.1.0, safe-buffer@^5.1.1, s
 
 "safe-react-simplemde-editor@https://github.com/wrnice/safe-react-simplemde-editor.git":
   version "0.1.0"
-  resolved "https://github.com/wrnice/safe-react-simplemde-editor.git#2f1b87ab9ad3276253f4333c34b34ed00d19b8d9"
+  resolved "https://github.com/wrnice/safe-react-simplemde-editor.git#16ba1ed08633d0096495454290fed9ae42b578d6"
   dependencies:
     react "^15.4.0"
     safe-simplemde "git+https://github.com/wrnice/safe-simplemde.git"
 
 "safe-simplemde@git+https://github.com/wrnice/safe-simplemde.git":
   version "0.1.0"
-  resolved "git+https://github.com/wrnice/safe-simplemde.git#088ec4411e4a86f7b03c6fd5ad60d710f340f058"
+  resolved "git+https://github.com/wrnice/safe-simplemde.git#ffb7914379478649c32950eadb4cdafb6cb2a847"
   dependencies:
     codemirror "*"
     codemirror-spell-checker "*"
